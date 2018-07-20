@@ -1,0 +1,91 @@
+<table>
+<tr class="title"> <!-- 제목 -->
+<td> <img src="assets/img/koscom_small.jpg" alt=""> </td>
+<td colspan="4"> PowerBASE 제도 개편 안내사항</td>
+<td>2018년. 03월.</td>
+</tr>
+<tr> <!-- 인사말 -->
+<td colspan="6">
+<p class="greeting">
+안녕하십니까?<br />
+코스콤 금융마케팅부 김영선 팀장입니다.<br />
+귀사의.....<br />
+</p>
+</td>
+<tr> <!-- 주제1 -->
+<td colspan="6">
+<p class="ptitle">
+&#10004; 2018.1분기 제도개편 안내  <a href="http://www.naver.com" target="_blank">(다운로드)</a>
+</p>
+<p class="pbody"> 
+ O 개편내용 : KRX300선물, KOSDAQ150옵션 상장<br />
+ O 반영일 : 2016.03.26<br />
+ O PB 방안<br />
+</p>
+</td>
+</tr>
+<tr> <!-- 주제2-->
+<td colspan="6">
+<p class="ptitle">
+&#10004; 블록체인 기술 동향  <a href="http://wz.koscom.co.kr" target="_blank">(코스콤 웹진으로 이동)</a>
+</p>
+<p class="pbody"> 
+ O 금융업계 동향 ~~~<br />
+ O 코스콤 진행사항 ~~~<br />
+</p>
+</td>
+</tr>
+<tr> <!-- 주제3 -->
+<td colspan="6">
+<p class="ptitle">
+&#10004; 고객가치 실현을 위한 PB 실행 방안  <a href="http://www.naver.com" target="_blank">(다운로드)</a>
+</p>
+<p class="pbody"> 
+ O <br />
+ O <br />
+ O <br />
+</p>
+</td>
+</tr>
+<tr> <!-- 일반 -->
+<td colspan="3">
+<p>
+이달의 행사
+</p>
+</td>
+<td colspan="3">
+<p>
+이달의 유머 &middot 속담 등
+</p>
+</td>
+</tr>
+</table>
+
+<style>
+  table {
+      width: 100%
+  }
+   table, td {
+     border: 1px solid black ;
+     border-collapse: collapse; 
+   }
+   td {
+      padding: 15px;
+  }
+  td img {
+     width:50%;
+     height:70%;
+  }
+  .title {
+     text-align: center;
+     font-size: 20px;
+     font-weight: bold;
+  }
+  .ptitle {
+     font-size: 20px;
+     font-weight: bold;
+  }
+.greeting {
+     font-size: 20px;
+  }
+</style>

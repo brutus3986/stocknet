@@ -1,0 +1,116 @@
+@font-face{
+  font-family:'NanumSquare';
+  src:url("/public/fonts/NanumSquareR.eot");
+  src:local("☺"),url("/public/fonts/NanumSquareR.woff") format("woff");
+}
+/*
+@font-face{
+  font-family:'NanumBarunGothic';
+  src:url("/public/fonts/NanumBarunGothic.eot");
+  src:local("☺"),url("/public/fonts/NanumBarunGothic.woff") format("woff");
+}
+*/
+a:hover { text-decoration: none;}      
+body {font-family: "NanumSquare",  sans-serif;}
+/* body {font-family: "NanumBarunGothic",  sans-serif;} */
+.container-fluid { padding: 0;}
+.control { position: inherit; top: 50%; z-index: 5; display: inline-block; right: 50%;} 
+
+header { color: #fff; text-align: center; padding: 40px 0;}
+header small { color: #fff}
+header p { color: #C0C0C0}
+.sans {  font-family: 'Source Sans Pro', sans-serif; }
+
+/*  icons */
+.service {margin: 40px 0;}
+.service a { display: block;}
+.icontxt { display: block; color: #2E2F28; text-align: center; } 
+.icontxt h4 {font-weight: bold; font-family: 'Source Sans Pro'; font-size: 20px; text-transform: uppercase;}
+.icons {      
+     float: left;
+     display: block;
+     font-size: 30px;
+     color: #fff;
+     background-color: #FF8000;
+     border-radius: 50%;
+     text-align: center;
+     margin-right: 15px ;
+     padding: 20px;
+     border:4px solid #FF8040;
+     transition: all 0.3s;
+    }  
+
+.service a:hover .icons  { background-color:#0080C0;}
+.service a:hover .icontxt h4 { color: #0080FF; }
+
+@media (min-width: 768px) {
+  .icons { margin: 0 auto; position: relative; left: 30%;}
+  .icontxt h4 { text-align: center;}
+}
+
+@media (max-width: 360px) {
+  .icontxt p { display: none; }
+  .icontxt {line-height:10px; padding: 0; margin: 0;}
+  .icontxt h4 { display: none; }
+  .icons { padding: 20px; margin: 10px 0 10px 20px; }
+  .book img { width: 50%; height: auto;}
+  .control { display: none;} 
+}
+
+.login {
+  color: #fff; text-align: center; 
+  background:url(../imgs/login_bg.jpg)  no-repeat center top ;
+  background-size:cover; 
+  padding-top: 0rem;
+  padding-bottom: 0rem; }
+
+ .login .logo {
+  position: absolute;
+  top: 20px;
+  left: 30px;}
+
+ .login .overlay {
+  position: relative;
+  background-color: #1f2222;
+  background-size:cover; 
+  opacity: 0.95; }
+
+  .login .title {
+    padding-top: 11rem;
+    padding-bottom: 6rem; }
+
+  .login form {
+    padding-bottom: 10rem; }
+  
+  .login .word-8rem {
+    font-size : 8rem;  }
+
+  .login .contact {
+    text-align: right;}
+  
+.content1 {
+  background:url(../imgs/slide1_bg.jpg)  no-repeat center top fixed;
+ background-size:cover; 
+}
+.about p { line-height: 1.8em; font-size: 18px; color: #282923}
+.about .image {
+  margin-left: auto; margin-right: auto; display: block;
+}
+
+.about  { padding: 50px 0;}
+
+#about { margin-top: -85px; padding-top: 85px }  /*  nav-fix 때문에 생기는 공백 상쇄 */
+
+.footer {
+  padding : 20px ;
+  background-color : #151616;
+  color : #ffffff;
+  text-align : center ;
+}
+
+/*Waypoints
+========================================================================== */
+.wp1 { visibility: hidden; }
+.bounceInLeft, .bounceInRight, .fadeInUp, .fadeInUpDelay, .fadeInDown, .fadeInUpD, .fadeInLeft, .fadeInRight { visibility: visible; }
+.delay-05s { animation-delay: 0.5s; -webkit-animation-delay: 0.5s; }
+.delay-1s { animation-delay: 1s; -webkit-animation-delay: 1s; }

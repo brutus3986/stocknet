@@ -1,0 +1,5 @@
+db.users.update({userid:"netadmin"}, {$set:{market_gubun6:true}}, false, true)
+db.users.update({userid:"netcruz"}, {$set:{market_gubun6:true}}, false, true)
+db.users.update({userid:"kbadmin"}, {$set:{market_gubun6:true}}, false, true)
+db.users.update({userid:"koscomsales"}, {$set:{market_gubun6:true}}, false, true)
+db.users.update({userid:"taejiyo"}, {$set:{market_gubun6:true}}, false, true)

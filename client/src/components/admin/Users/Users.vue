@@ -17,23 +17,23 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" v-model.trim="searchinfo"/>
+                        <input type="text" class="form-control" v-model.trim="searchinfo" v-on:keyup.enter="fetchUsersList"/>
                     </div>    
                 </div>       
             </div>
             <commonModal v-if="resetCountModal"></commonModal>
             <br> 
-            <UsersTable :userslist="filtered"></UsersTable>
+            <UsersTable :userslist="userslist"></UsersTable>
             <div class="paging-row">
                 <div class="pginnerdiv">
                     <ul class="pagination">
-                        <li class="page-item"><a class="page-link"  @click="prevInfo"> << </a></li>
+                        <li class="page-item"><a class="page-link"  @click="prevInfo"> &lt;&lt; </a></li>
                         <li v-for="curPage in totalPage" v-bind:key="curPage.index">
                             <a class="page-link curpage"  @click="setPage(curPage)">
                                 {{curPage}}
                             </a>
                         </li> 
-                        <li class="page-item"><a class="page-link"  @click="nextInfo"> >> </a></li>
+                        <li class="page-item"><a class="page-link"  @click="nextInfo"> &gt;&gt; </a></li>
                     </ul>
                 </div>       
             </div>
@@ -92,6 +92,7 @@ export default {
         pwdModal     : pwdModal
     },
     computed:{
+/*        
         filtered: function(){
             var selectinfo = this.seloption;
             var sinfo = this.searchinfo;
@@ -110,6 +111,7 @@ export default {
                 })
             }
         },
+*/        
     },
     mounted : function(){
         this.fetchUsersList()
@@ -163,6 +165,8 @@ export default {
             axios.get(Config.base_url+'/users/userlist',{
                 params: {
                     "bbs_id" : this.bbs_id,
+                    "seloption" : this.seloption,
+                    "searchinfo" : this.searchinfo,
                     "curPage": this.curPage,
                     "perPage": this.perPage
                 }

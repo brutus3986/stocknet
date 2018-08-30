@@ -14,20 +14,29 @@ var userList = function(req, res) {
 
     // 데이터베이스 객체가 초기화된 경우
     if (database.db) {
-
         var options = {
             "criteria": { bbs_id: req.query.bbs_id },
             "perPage": req.query.perPage,
             "curPage": req.query.curPage
         };
+
+        if(req.query.searchinfo != '') {
+            var sinfo = '.*' + req.query.searchinfo + '*.';
+            if(req.query.seloption == 'userid') {
+                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { userid : {$regex : sinfo, $options:"i" }} ] };
+            }else {
+                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { name : {$regex : sinfo, $options:"i" }} ] };
+            }
+        }
         
+        console.log(JSON.stringify(options));
         database.UserModel.countByBbsId(options, function(err, count) {
+            console.log(count);
             if (err) {
                 console.dir(err);
                 res.json({ success: false, message: err });
                 res.end();
             } else if (count) {
-                // console.dir(results);
                 database.UserModel.findAll(options, function(err, results) {
                     var totalPage = Math.ceil(count / req.query.perPage);
                     // console.log("count : " + count + " totalPage : " + totalPage) ;

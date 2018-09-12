@@ -42,7 +42,8 @@ export default {
     data() {
       return {
         userid   : "",
-        password : ""
+        password : "",
+        cnt : 0,
       };
     },
     methods: {
@@ -50,7 +51,6 @@ export default {
             console.log('loginWithInfo');
             var vm = this;
             if (this.loginExceptionHandler()) return true;
-            
             axios.post(Config.base_url+'/login', {
                 userid   : vm.userid,
                 password : vm.password
@@ -96,8 +96,19 @@ export default {
                      alert("승인되지 않은 IP입니다.");
                 }else if(response.data.message == 'No Auth TIME' ) {  //승인되지 않은 접속시간
                      alert("승인되지 않은 시간입니다.");
-                }else {
-                    alert("ID 또는 비밀번호가 일치하지 않습니다.");
+                }else if(response.data.message == 'lock' ) {  //계정 잠김 상태
+                     alert("비밀번호 5회 이상 잘못 입력으로 인해 계정이 잠겼습니다. 관리자에게 문의주시기 바랍니다. 신광섭 ( 02-767-7128 )");
+                }else if(response.data.message == 'NOT USER' ) {  //계정이 존재하지 않음
+                     alert("존재하지 않는 ID 입니다.");
+                }else if(response.data.message == 'WRONG PASSWD' ){
+                    vm.cnt++;
+                    alert("비밀번호가 일치하지 않습니다. 5회 중 "+ vm.cnt +"회 틀림.");
+                    if(vm.cnt>=5){
+                         axios.post(Config.base_url+'/wrongpasswd', {
+                            userid   : vm.userid,
+                            lockyn : true
+                        })
+                    }
                 }
             });
         },

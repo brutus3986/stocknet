@@ -9,7 +9,9 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'vue-awesome/icons';
 import Icon from 'vue-awesome/components/Icon';
-import 'date-input-polyfill'
+import 'date-input-polyfill';
+import ToggleButton from 'vue-js-toggle-button';
+Vue.use(ToggleButton);
 
 Vue.use(VueRouter);
 Vue.use(VueResource);

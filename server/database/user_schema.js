@@ -28,7 +28,8 @@ Schema.createSchema = function(mongoose) {
         ipaddr: { type: String, trim: true, 'default': '-' }, // IPADDR
         grpcode: { type: String, trim: true, 'default': '-' }, // 상품코드
         starttime: { type: Number, 'default': 00 }, // 접속시간  to 
-        endtime: { type: Number, 'default': 00 }, // 접속시간 from 
+        endtime: { type: Number, 'default': 00 }, // 접속시간 from
+        lockyn: { type: Boolean, 'default': false }, // 계정잠김여부 
         route_gubun1: { type: Boolean, 'default': false }, // 서울현물
         route_gubun2: { type: Boolean, 'default': false }, // 서울파생
         route_gubun3: { type: Boolean, 'default': false }, // 부산파생
@@ -89,7 +90,10 @@ Schema.createSchema = function(mongoose) {
 
     // 모델 객체에서 사용할 수 있는 메소드 정의
     UserSchema.statics = {
-
+        //로그인하려는 ID가 존재하는지 확인
+        checkByUserID: function(userid, callback) {
+            return this.findOne({userid:userid}).exec(callback);
+        },
         //로그인 (ID체크) login.js에서 사용
         loginByUser: function(options, callback) {
             console.log(options.criteria);

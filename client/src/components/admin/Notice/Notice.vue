@@ -2,36 +2,36 @@
     <main>
         <div class="container">
             <br>
-            <div class="form">   
+            <div class="form">
                 <div class="total-num">   <!-- 게시판 글 수  -->
                     <span class="count"> 전체글 : <em>{{ count }} </em></span>
-                </div>    
+                </div>
                 <div class="search">     <!-- 제목으로 검색  -->
                     <div class="form-group">
                         <select v-model="seloption" class="form-control">
                             <option v-for="option in options" :key="option.index" :value="option.value">
                                 {{option.text}}
-                            </option>    
+                            </option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" v-model.trim="searchinfo"/>
-                    </div>    
-                </div>       
+                        <input type="text" class="form-control" v-model.trim="searchinfo" v-on:keyup.enter="fetchStories"/>
+                    </div>
+                </div>
             </div>
-            <NoticeTable :stories="filtered"></NoticeTable>
+            <NoticeTable :stories="stories"></NoticeTable>
             <div class="paging-row">
                 <div class="pginnerdiv">
                     <ul class="pagination">
-                        <li class="page-item"><a class="page-link"  @click="prevStory"> &laquo; </a></li>
+                        <li class="page-item"><a class="page-link"  @click="prevStory"> &lt;&lt; </a></li>
                         <li v-for="curPage in totalPage" v-bind:key="curPage.index">
                             <a class="page-link curpage"  @click="setPage(curPage)">
                                 {{curPage}}
                             </a>
-                        </li> 
-                        <li class="page-item"><a class="page-link"  @click="nextStory"> >> </a></li>
+                        </li>
+                        <li class="page-item"><a class="page-link"  @click="nextStory"> &gt;&gt;  </a></li>
                     </ul>
-                </div>       
+                </div>
             </div>
             <p class="tar">
                 <button @click="writeStory" class="btn btn-basic">공지사항등록</button>
@@ -74,30 +74,30 @@ export default {
             NoticeModal : NoticeModal
         },
         computed:{
-            filtered: function(){
-                var selectinfo = this.seloption;
-                var sinfo = this.searchinfo;
-                
-                if(selectinfo==="title"){
-                    return this.stories.filter(function(stories,index){
-                        if(stories.title.indexOf(sinfo) > -1){
-                            return true;
-                        }
-                    })
-                }else if (selectinfo==="writer"){
-                    return this.stories.filter(function(stories,index){
-                        if(stories.writer.indexOf(sinfo) > -1){
-                        return true;
-                        }
-                    })
-                }else {
-                    return this.stories.filter(function(stories,index){
-                        if(stories.contents.indexOf(sinfo) > -1){
-                        return true;
-                        }
-                    })
-                }
-            },
+            // filtered: function(){
+            //     var selectinfo = this.seloption;
+            //     var sinfo = this.searchinfo;
+
+            //     if(selectinfo==="title"){
+            //         return this.stories.filter(function(stories,index){
+            //             if(stories.title.indexOf(sinfo) > -1){
+            //                 return true;
+            //             }
+            //         })
+            //     }else if (selectinfo==="writer"){
+            //         return this.stories.filter(function(stories,index){
+            //             if(stories.writer.indexOf(sinfo) > -1){
+            //             return true;
+            //             }
+            //         })
+            //     }else {
+            //         return this.stories.filter(function(stories,index){
+            //             if(stories.contents.indexOf(sinfo) > -1){
+            //             return true;
+            //             }
+            //         })
+            //     }
+            // },
         },
         created: function() {
             this.$EventBus.$on('insertStory' , this.insertStory);
@@ -124,9 +124,11 @@ export default {
 
                 axios.get(Config.base_url+'/board/liststory', {
                     params: {
-                        "bbs_id" : this.bbs_id,
-                        "curPage": this.curPage,
-                        "perPage": this.perPage
+                        "bbs_id"     : this.bbs_id,
+                        "seloption"  : this.seloption,
+                        "searchinfo" : this.searchinfo,
+                        "curPage"    : this.curPage,
+                        "perPage"    : this.perPage
                     }
                 }).then(function(response) {
                     // console.log(response);
@@ -152,7 +154,7 @@ export default {
                     "contents": "",
                     "view"    : 0,
                     "notice"  : false,    // 공지사항 체크박스
-                    
+
                 };
             },
             showStory: function(story) {
@@ -176,7 +178,7 @@ export default {
                 console.log("insertStory");
                 var vm = this;
                 vm.showModal = false;
-                
+
                 axios.post(Config.base_url+'/board/insertstory', {
                     "bbs_id"   : this.bbs_id,
                     "storyinfo": story
@@ -205,7 +207,7 @@ export default {
                 console.log("deleteStory");
                 var vm = this;
                 vm.showModal = false;
-                
+
                 axios.post(Config.base_url+'/board/deletestory', {
                     "bbs_id"   : this.bbs_id,
                     "storyinfo": story
@@ -219,7 +221,7 @@ export default {
                 //update시간 처리 해야함
                 var vm = this;
                 story.view = story.view + 1;
-                
+
                 axios.post(Config.base_url+'/board/updateviewcount', {
                     "bbs_id"   : this.bbs_id,
                     "story_id" : story.story_id,
@@ -228,7 +230,7 @@ export default {
                     // console.log(response);
                     vm.fetchStories();
                 });
-                
+
             },
             closeStory: function(story) {
                 console.log("closeStory");
@@ -281,10 +283,10 @@ ul.pagination li a {
     border: 1px solid #ddd;
 }
 /* .curpaget {background-color:rgb(219, 158, 145)} */
-ul li a:hover, ul li a:focus {  
-    color:#fff;  
-    border:1px solid rgb(228, 219, 217);  
-    background-color:rgb(228, 219, 217);   
+ul li a:hover, ul li a:focus {
+    color:#fff;
+    border:1px solid rgb(228, 219, 217);
+    background-color:rgb(228, 219, 217);
 }
 ul.pagination li a:hover:not(.active) {background-color: #ddd;}
 .tar {text-align:right;}

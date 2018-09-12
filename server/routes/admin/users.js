@@ -21,6 +21,10 @@ var userList = function(req, res) {
         };
 
         if(req.query.searchinfo != '') {
+            console.log('*******************');
+            console.log(req.query.searchinfo)
+            console.log('*******************');
+
             var sinfo = '.*' + req.query.searchinfo + '*.';
             if(req.query.seloption == 'userid') {
                 options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { userid : {$regex : sinfo, $options:"i" }} ] };

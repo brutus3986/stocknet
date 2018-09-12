@@ -298,6 +298,7 @@ export default {
                 "endtime"      : 18,
                 "conntime"     :"",
                 "user_level"   : "normal",
+                "lockyn"       : "N",
                 "route_gubun1" : true,     // 서울현물
                 "route_gubun2" : true,     // 서울파생
                 "route_gubun3" : true,     // 부산파생
@@ -337,6 +338,7 @@ export default {
             this.userinfo.starttime     = user.starttime;           // 접속가능시간 to
             this.userinfo.endtime       = user.endtime;             // 접속가능시간 from
             this.userinfo.user_level    = user.user_level;          // 유저 레벨 (일반고객, 관리자)
+            this.userinfo.lockyn        = user.lockyn;              // 계정 잠김여부
             this.userinfo.machine_name  = user.machine_name;        // 조회 장비명
             this.userinfo.route_gubun1  = user.route_gubun1;        // 서울현물 
             this.userinfo.route_gubun2  = user.route_gubun2;        // 서울파생

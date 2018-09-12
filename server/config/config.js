@@ -22,6 +22,7 @@ module.exports = {
         { file: './admin/login', path: '/login', method: 'checkLogin', type: 'post' },
         { file: './admin/login', path: '/updatevisitcount', method: 'countInfo', type: 'get' },
         { file: './admin/login', path: '/logincount', method: 'usersloginCount', type: 'get' },
+        { file: './admin/login', path: '/wrongpasswd', method: 'wrongpasswd', type: 'post' },
         //공지사항
         { file: './admin/board', path: '/board/liststory', method: 'listStory', type: 'get' },
         { file: './admin/board', path: '/board/insertstory', method: 'insertStory', type: 'post' },

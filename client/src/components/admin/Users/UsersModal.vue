@@ -24,15 +24,18 @@
                                 <input type="text" class="form-control mod" v-model.trim="userinfo.userid" id="userid" required="required">
                                 <input type="hidden" v-bind:value="userinfo.oldId" id="oldId">   <!-- 사용자 계정변경시 예전 userid// -->
                                 <button type="button" class="btn btn-gray" @click="idConfirm">중복확인</button>
-                            </div> <!-- 사용자계정// -->
+                            </div> <!-- 사용자계정 gubun=1 신규// -->
                             <div v-if="gubun===2" class="form-group input-group">
                                 <label class="col-md-2 col-form-label">사용자계정</label>
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="far fa-id-card fa-fw"></i> </span>
                                 </div>
                                 <input type="text" class="form-control" v-model="userinfo.userid" id="userid" required="required">
+                            
+                                <toggle-button v-model="userinfo.lockyn" :color="{checked: '#f44e42', unchecked: '#c6c6c6'}" :labels="{checked: '잠김', unchecked: '풀림'}" :width="80" :height="35"/> 
+                                상태: <input type="text" v-model="userinfo.lockyn" style="width:50px;">
                                 <input type="hidden" v-bind:value="userinfo.oldId" id="oldId">   <!-- 사용자 계정변경시 예전 userid// -->
-                            </div> <!-- 사용자계정// -->
+                            </div> <!-- 사용자계정 gubun=2 변경// -->
                             <div class="form-group input-group">
                                 <label class="col-md-2 col-form-label">비밀번호</label>
                                 <div class="input-group-prepend">
@@ -190,6 +193,7 @@ export default {
     props: ["userinfo", "gubun","cablelist"],
     data: function() {
         return {
+            toggled  : false,
             pwdgubun : 0,   //비밀번호 모달 update (1) 와 delete (2) 에서 함께씀
             conntime: this.userinfo.starttime + "시 ~ "+ this.userinfo.endtime + "시",
             selectedCable: [],
@@ -437,4 +441,5 @@ export default {
 @media (min-width:992px) {
     .col-md-offset-2 {margin-left:16.66666667%;}
 }
+
 </style>

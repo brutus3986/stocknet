@@ -10,10 +10,13 @@
 var checkLogin = function(req, res) {
     console.log('users 모듈 안에 있는 checkLogin 호출됨.');
 
-    // console.dir(req);
-    var options = { criteria: { userid: "", password: "" } };
     var userid = req.body.userid;
     var password = req.body.password;
+    
+    var options = {
+        "criteria": { userid: req.body.userid, password: req.body.password}
+    };
+
     // 운영으로 갈때 주석풀기
     // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
     var ip = "211.255.203.42";
@@ -23,65 +26,82 @@ var checkLogin = function(req, res) {
     var dt_time = dt.getHours();
     console.log('client IP***********--> ' + ip);
 
-    options.criteria.userid = userid;
-    options.criteria.password = password;
-
     console.log("userid : [" + userid + "]  password : [" + password + "]");
-
     if (userid.length > 0 && password.length > 0) {
         var UM = req.app.get('database').UserModel;
-
-        UM.loginByUser(options, function(err, user) {
-            if (err) {
-                console.log("Error.......: " + err);
-                res.json({ success: false, message: err });
-                res.end();
-            }
-            // 등록된 사용자가 없는 경우
-            if (user.length > 0) {
-                console.log('계정 일치.');
-                console.log(' 이름 : ' + user[0].name);
-                console.log(' IP주소 : ' + user[0].ipaddr);
-                console.log(' 접속시간 TO : ' + user[0].starttime);
-                console.log(' 접속시간 FROM : ' + user[0].endtime);
-                console.log(' 현재 시간대 :' + dt_time);
-                var dbIpaddr = user[0].ipaddr.split(',');
-                if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
-                    if (user[0].starttime <= dt_time && dt_time <= user[0].endtime) {
-                        res.json({
-                            success: true,
-                            message: "OK",
-                            userid: userid,
-                            username: user[0].name,
-                            user_level: user[0].user_level,
-                            machine_name: user[0].machine_name,
-                            route_gubun1: user[0].route_gubun1,
-                            route_gubun2: user[0].route_gubun2,
-                            route_gubun3: user[0].route_gubun3,
-                            route_gubun4: user[0].route_gubun4,
-                            market_gubun1: user[0].market_gubun1,
-                            market_gubun2: user[0].market_gubun2,
-                            market_gubun3: user[0].market_gubun3,
-                            market_gubun4: user[0].market_gubun4,
-                            market_gubun5: user[0].market_gubun5,
-                            market_gubun6: user[0].market_gubun6,
-                            market_gubun7: user[0].market_gubun7,
-                            market_gubun8: user[0].market_gubun8
-                        });
-                        res.end();
-                    } else {
-                        console.log('계정은 일치, IP정보 일치, 접속시간 불일치');
-                        res.json({ success: false, message: "No Auth TIME" });
-                        res.end();
-                    }
-                } else {
-                    console.log('계정은 일치하지만, IP정보가 다름!!');
-                    res.json({ success: false, message: "No Auth IP" });
+        UM.checkByUserID(userid, function(err, user) {  //존재하는 계정인지 검색
+            // console.log(JSON.stringify(user));
+            // 등록된 사용자의 경우
+            if(user !== null){
+                console.log('id가 존재합니다.');
+                if (err) {
+                    console.log("Error.......: " + err);
+                    res.json({ success: false, message: err });
                     res.end();
                 }
-            } else {
-                console.log('계정 일치하지 않음.');
-                res.json({ success: false, message: "ERROR LOGIN" });
+                UM.loginByUser(options, function(err, user) {
+                    if (err) {
+                        console.log("Error.......: " + err);
+                        res.json({ success: false, message: err });
+                        res.end();
+                    }
+                    
+                    if (user.length > 0) {    //ID와 비밀번호가 동시에 일치하는 경우 1
+                    console.log('계정 일치.');
+                    console.log('잠김여부 : '+ user[0].lockyn);
+                    console.log(' 이름 : ' + user[0].name);
+                    console.log(' IP주소 : ' + user[0].ipaddr);
+                    console.log(' 접속시간 TO : ' + user[0].starttime);
+                    console.log(' 접속시간 FROM : ' + user[0].endtime);
+                    console.log(' 현재 시간대 :' + dt_time);
+                    var dbIpaddr = user[0].ipaddr.split(',');
+                    if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
+                        if (user[0].starttime <= dt_time && dt_time <= user[0].endtime && user[0].lockyn == false) {
+                            res.json({
+                                success: true,
+                                message: "OK",
+                                userid: userid,
+                                username: user[0].name,
+                                user_level: user[0].user_level,
+                                lockyn: user[0].lockyn,
+                                machine_name: user[0].machine_name,
+                                route_gubun1: user[0].route_gubun1,
+                                route_gubun2: user[0].route_gubun2,
+                                route_gubun3: user[0].route_gubun3,
+                                route_gubun4: user[0].route_gubun4,
+                                market_gubun1: user[0].market_gubun1,
+                                market_gubun2: user[0].market_gubun2,
+                                market_gubun3: user[0].market_gubun3,
+                                market_gubun4: user[0].market_gubun4,
+                                market_gubun5: user[0].market_gubun5,
+                                market_gubun6: user[0].market_gubun6,
+                                market_gubun7: user[0].market_gubun7,
+                                market_gubun8: user[0].market_gubun8
+                            });
+                            res.end();
+                        }else if(user[0].lockyn == true) {
+                            console.log('계정 잠김 상태');
+                            res.json({ success: false, message: "lock" });
+                            res.end();
+                        }else {
+                            console.log('계정은 일치, IP정보 일치, 접속시간 불일치');
+                            res.json({ success: false, message: "No Auth TIME" });
+                            res.end();
+                        }
+                    } else {
+                        console.log('계정은 일치하지만, IP정보가 다름!!');
+                        res.json({ success: false, message: "No Auth IP" });
+                        res.end();
+                    }
+                }else{
+                console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
+                res.json({ success: false, message: "WRONG PASSWD" });
+                res.end();
+                }
+            });
+            }else{
+                console.log('존재하지 않는 ID입니다.....')
+                res.json({ success: false, message: "NOT USER" });
                 res.end();
             }
         });
@@ -90,8 +110,17 @@ var checkLogin = function(req, res) {
         res.end();
     }
 };
-
-
+//비밀번호 5회이상 틀린 계정 잠김
+var wrongpasswd = function(req, res) {
+    console.log('login 모듈 안에 있는 wrongpasswd 호출됨.');
+    // 데이터베이스 객체가 초기화된 경우
+    if (database.db) {
+            //여기서부터 다시....
+    }else{
+        res.json({ success: false, message: "DB connection Error" });
+        res.end();
+    }
+}
 //방문자수 카운트 후 업데이트
 var countInfo = function(req, res) {
     console.log('login 모듈 안에 있는 countInfo 호출됨.');
@@ -250,7 +279,7 @@ var usersloginCount = function(req, res) {
     }
 }
 
-
+module.exports.wrongpasswd = wrongpasswd;
 module.exports.checkLogin = checkLogin;
 module.exports.countInfo = countInfo;
 module.exports.usersloginCount = usersloginCount;

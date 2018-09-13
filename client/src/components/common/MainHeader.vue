@@ -1,27 +1,27 @@
 <template>
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-            <router-link to="notice" class="navbar-brand">STOCK-NET</router-link>
+            <router-link to="/admin/notice" class="navbar-brand">STOCK-NET</router-link>
             <div id="navbar" class="collapse navbar-collapse">
                 <div class="navbar-nav mr-auto">
                     <ul class="nav navbar-nav">
                         <li class="nav-item">
-                            <router-link to="/notice" class="nav-link">공지사항</router-link>
+                            <router-link to="/admin/notice" class="nav-link">공지사항</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/chart" class="nav-link">일간성능</router-link>
+                            <router-link to="/admin/chart" class="nav-link">일간성능</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/chartterm" class="nav-link">기간성능</router-link>
+                            <router-link to="/admin/chartterm" class="nav-link">기간성능</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/users" class="nav-link">사용자설정</router-link>
+                            <router-link to="/admin/users" class="nav-link">사용자설정</router-link>
                         </li>
                     </ul>
                 </div>
                 <div class="navbar-nav">
                     <li>
-                        <router-link to="/changeadpwd" class="info"><i class="fa fa-user"></i> {{ username }} 님</router-link>
+                        <router-link to="/admin/changeadpwd" class="info"><i class="fa fa-user"></i> {{ username }} 님</router-link>
                     </li>
                     <li>
                         <a class="btn-login" @click="logout(logoutGubun)"><i class="fa fa-sign-out-alt"></i> LOGOUT </a>  

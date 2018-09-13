@@ -12,7 +12,8 @@ var checkLogin = function(req, res) {
 
     var userid = req.body.userid;
     var password = req.body.password;
-    
+    var cnt=req.body.count;   //비밀번호 틀린 횟수
+
     var options = {
         "criteria": { userid: req.body.userid, password: req.body.password}
     };
@@ -27,10 +28,12 @@ var checkLogin = function(req, res) {
     console.log('client IP***********--> ' + ip);
 
     console.log("userid : [" + userid + "]  password : [" + password + "]");
+    
     if (userid.length > 0 && password.length > 0) {
         var UM = req.app.get('database').UserModel;
         UM.checkByUserID(userid, function(err, user) {  //존재하는 계정인지 검색
-            // console.log(JSON.stringify(user));
+            console.log(JSON.stringify(user));
+            console.log('과연 어떻게 나올것인가.....'+user.loginfailcount);
             // 등록된 사용자의 경우
             if(user !== null){
                 console.log('id가 존재합니다.');
@@ -49,6 +52,7 @@ var checkLogin = function(req, res) {
                     if (user.length > 0) {    //ID와 비밀번호가 동시에 일치하는 경우 1
                     console.log('계정 일치.');
                     console.log('잠김여부 : '+ user[0].lockyn);
+                    console.log('fail count : '+ user[0].loginfailcount);
                     console.log(' 이름 : ' + user[0].name);
                     console.log(' IP주소 : ' + user[0].ipaddr);
                     console.log(' 접속시간 TO : ' + user[0].starttime);
@@ -95,7 +99,9 @@ var checkLogin = function(req, res) {
                     }
                 }else{
                 console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
-                res.json({ success: false, message: "WRONG PASSWD" });
+                var count = user.loginfailcount;
+                count++;
+                res.json({ success: false, message: "WRONG PASSWD" , cnt: count, userid:userid });
                 res.end();
                 }
             });

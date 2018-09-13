@@ -15,11 +15,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" v-model.trim="searchinfo"/>
+                        <input type="text" class="form-control" v-model.trim="searchinfo" v-on:keyup.enter="fetchStories"/>
                     </div>    
                 </div>       
             </div>
-            <NoticeTable :stories="filtered"></NoticeTable>
+            <NoticeTable :stories="stories"></NoticeTable>
             <div class="paging-row">
                 <div class="pginnerdiv">
                     <ul class="pagination">
@@ -71,29 +71,7 @@ export default {
             NoticeModal : NoticeModal
         },
         computed:{
-            filtered: function(){
-                var selectinfo = this.seloption;
-                var sinfo = this.searchinfo;
-                if(selectinfo==="title"){
-                    return this.stories.filter(function(stories,index){
-                        if(stories.title.indexOf(sinfo) > -1){
-                            return true;
-                        }
-                    })
-                }else if (selectinfo==="writer"){
-                    return this.stories.filter(function(stories,index){
-                        if(stories.writer.indexOf(sinfo) > -1){
-                        return true;
-                        }
-                    })
-                }else {
-                    return this.stories.filter(function(stories,index){
-                        if(stories.contents.indexOf(sinfo) > -1){
-                        return true;
-                        }
-                    })
-                }
-            },
+            
         },
         created: function() {
             this.$EventBus.$on('closeStory'  , this.closeStory );
@@ -116,6 +94,8 @@ export default {
                 axios.get(Config.base_url+'/board/liststory', {
                     params: {
                         "bbs_id" : this.bbs_id,
+                        "seloption"  : this.seloption,
+                        "searchinfo" : this.searchinfo,
                         "curPage": this.curPage,
                         "perPage": this.perPage
                     }

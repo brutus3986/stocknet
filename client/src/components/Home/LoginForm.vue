@@ -20,7 +20,7 @@
                                 <input type="password" class="form-login" placeholder="PASSWORD" name="password" v-model="password">
                             </div>
                             <div>
-                                <button type="submit" class="btn btn-block btn-lg btn-login" v-on:click="loginWithInfo">로그인</button>
+                                <button type="submit" class="btn btn-block btn-lg btn-login" v-on:click="loginWithInfo()">로그인</button>
                             </div>
                         </form>
                     </div>
@@ -43,17 +43,30 @@ export default {
       return {
         userid   : "",
         password : "",
-        cnt : 0,
-      };
+        count:0,
+        };
+    },
+    computed: {
+        idcompare: function () {
+            if(this.connewpassword !== this.newpassword) {  //비밀번호 같지않음.
+                this.disabledBtn = true
+                return true;    // 두개의 값이 달라야 true가 되어 is invalid class active
+            }else{   //비밀번호 같음.
+                this.disabledBtn = false
+                return false;
+            }
+        },
     },
     methods: {
         loginWithInfo(event) {
             console.log('loginWithInfo');
             var vm = this;
+            console.log('카운트 ....' + vm.count);
             if (this.loginExceptionHandler()) return true;
             axios.post(Config.base_url+'/login', {
                 userid   : vm.userid,
-                password : vm.password
+                password : vm.password,
+                count : vm.count,
             }).then(function(response) {
                 vm.clearForm();
                 if(response.data.success == true) {
@@ -101,14 +114,15 @@ export default {
                 }else if(response.data.message == 'NOT USER' ) {  //계정이 존재하지 않음
                      alert("존재하지 않는 ID 입니다.");
                 }else if(response.data.message == 'WRONG PASSWD' ){
-                    vm.cnt++;
-                    alert("비밀번호가 일치하지 않습니다. 5회 중 "+ vm.cnt +"회 틀림.");
-                    if(vm.cnt>=5){
-                         axios.post(Config.base_url+'/wrongpasswd', {
-                            userid   : vm.userid,
-                            lockyn : true
-                        })
-                    }
+                    var cnt = response.data.cnt;
+                    alert("비밀번호가 일치하지 않습니다. 5회 중 "+ cnt +"회 틀림.");
+                    
+                    // if(vm.cnt>=5){
+                    //      axios.post(Config.base_url+'/wrongpasswd', {
+                    //         userid   : vm.userid,
+                    //         lockyn   : true
+                    //     })
+                    // }
                 }
             });
         },

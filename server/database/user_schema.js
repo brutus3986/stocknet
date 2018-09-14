@@ -93,7 +93,7 @@ Schema.createSchema = function(mongoose) {
     UserSchema.statics = {
         //로그인하려는 ID가 존재하는지 확인
         checkByUserID: function(userid, callback) {
-            return this.findOne({userid:userid}, {loginfailcount: 1}).exec(callback);
+            return this.findOne({userid:userid}, {loginfailcount: 1,lockyn:2}).exec(callback);
         },
         //로그인 (ID체크) login.js에서 사용
         loginByUser: function(options, callback) {
@@ -101,8 +101,12 @@ Schema.createSchema = function(mongoose) {
             return this.find(options.criteria).exec(callback);
         },
         //로그인 실패 시,카운트 업데이트 
-        countPlus: function(cntoption, callback) {
-            return this.findOneAndUpdate(cntoption.userid, cntoption.loginfailcount).exec(callback);
+        countPlus: function(userid, callback) {
+            return this.findOneAndUpdate({"userid":userid}, { $inc: { "loginfailcount": 1 } }).exec(callback);
+        },
+        // 5번 비밀번호 틀림 -> 계정 잠김
+        loginfaillock: function(userid, callback) {
+            return this.findOneAndUpdate({"userid":userid},  {"lockyn": true } ).exec(callback);
         },
         //게시판구분(bbsid)으로 조회
         countByBbsId: function(options, callback) {

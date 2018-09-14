@@ -12,12 +12,11 @@ var checkLogin = function(req, res) {
 
     var userid = req.body.userid;
     var password = req.body.password;
-    var cnt=req.body.count;   //비밀번호 틀린 횟수
-
+    
     var options = {
         "criteria": { userid: req.body.userid, password: req.body.password}
     };
-
+    
     // 운영으로 갈때 주석풀기
     // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
     var ip = "211.255.203.42";
@@ -28,12 +27,17 @@ var checkLogin = function(req, res) {
     console.log('client IP***********--> ' + ip);
 
     console.log("userid : [" + userid + "]  password : [" + password + "]");
+    var database = req.app.get('database');
     
     if (userid.length > 0 && password.length > 0) {
-        var UM = req.app.get('database').UserModel;
-        UM.checkByUserID(userid, function(err, user) {  //존재하는 계정인지 검색
-            console.log(JSON.stringify(user));
-            console.log('과연 어떻게 나올것인가.....'+user.loginfailcount);
+        // var UM = req.app.get('database').UserModel;
+        database.UserModel.checkByUserID(userid, function(err, user) {  //존재하는 계정인지 검색
+            //console.log(JSON.stringify(user));
+            
+            //존재하는 계정의 비밀번호 틀린 횟수와 잠김여부
+            var count = user.loginfailcount;
+            var lockyn = user.lockyn;
+            
             // 등록된 사용자의 경우
             if(user !== null){
                 console.log('id가 존재합니다.');
@@ -42,7 +46,7 @@ var checkLogin = function(req, res) {
                     res.json({ success: false, message: err });
                     res.end();
                 }
-                UM.loginByUser(options, function(err, user) {
+                database.UserModel.loginByUser(options, function(err, user) {
                     if (err) {
                         console.log("Error.......: " + err);
                         res.json({ success: false, message: err });
@@ -98,11 +102,35 @@ var checkLogin = function(req, res) {
                         res.end();
                     }
                 }else{
-                console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
-                var count = user.loginfailcount;
-                count++;
-                res.json({ success: false, message: "WRONG PASSWD" , cnt: count, userid:userid });
-                res.end();
+                    console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
+                    
+                    if(count <= 4 && lockyn===false){  //비밀번호만 틀리고 계정이 잠기지 않은 상태
+                        console.log('비밀번호만 틀리고 계정이 잠기지 않은 상태');
+                        res.json({ success: false, message: "WRONG PASSWD" , cnt: count+1});
+                        res.end();
+                        if(count==4){
+                            database.UserModel.loginfaillock(userid, function(err) {
+                                if (err) {
+                                    console.log("lock.... FAIL " + err);
+                                } else {
+                                    console.dir("lock.... OK ");
+                                }
+                            });
+                        }else{
+                            //fail count  업데이트 
+                            database.UserModel.countPlus(userid, function(err) {
+                                if (err) {
+                                    console.log("failCountUpdate.... FAIL " + err);
+                                } else {
+                                    console.dir("failCountUpdate.... OK ");
+                                }
+                            });
+                        }
+                    }else{   //비밀번호가 틀리고 계정이 잠긴 상태
+                        console.log('비밀번호만 틀리고 계정이 잠긴 상태');
+                        res.json({ success: false, message: "lock" });
+                        res.end();
+                    }
                 }
             });
             }else{
@@ -116,17 +144,7 @@ var checkLogin = function(req, res) {
         res.end();
     }
 };
-//비밀번호 5회이상 틀린 계정 잠김
-var wrongpasswd = function(req, res) {
-    console.log('login 모듈 안에 있는 wrongpasswd 호출됨.');
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-            //여기서부터 다시....
-    }else{
-        res.json({ success: false, message: "DB connection Error" });
-        res.end();
-    }
-}
+
 //방문자수 카운트 후 업데이트
 var countInfo = function(req, res) {
     console.log('login 모듈 안에 있는 countInfo 호출됨.');

@@ -20,8 +20,7 @@ module.exports = {
     route_info: [
         // 로그인
         { file: './admin/login', path: '/login', method: 'checkLogin', type: 'post' },
-        { file: './admin/login', path: '/updatevisitcount', method: 'countInfo', type: 'get' },
-        { file: './admin/login', path: '/logincount', method: 'usersloginCount', type: 'get' },
+        { file: './admin/login', path: '/updatevisitcount', method: 'countInfo', type: 'post' },
         //공지사항
         { file: './admin/board', path: '/board/liststory', method: 'listStory', type: 'get' },
         { file: './admin/board', path: '/board/insertstory', method: 'insertStory', type: 'post' },
@@ -51,6 +50,7 @@ module.exports = {
         { file: './admin/users', path: '/users/insertpbinfo', method: 'insertPBInfo', type: 'post' },
         { file: './admin/users', path: '/users/deletepbinfo', method: 'deletePBInfo', type: 'post' },
         { file: './admin/users', path: '/users/idconfirm', method: 'useridcheck', type: 'post' },
+        { file: './admin/users', path: '/failcountChange', method: 'failcntChange', type: 'get' },
         //일반고객 비밀번호 변경
         { file: './admin/users', path: '/changepwd', method: 'changePwd', type: 'post' }
     ]

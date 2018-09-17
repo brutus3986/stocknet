@@ -119,7 +119,7 @@ var insertInfo = function(req, res) {
         var bbs_id = req.body.bbs_id;
         var userinfo = req.body.userinfo;
         var options = { "criteria": { "bbs_id": bbs_id }, "userinfo": userinfo };
-
+        
         var UM = new database.UserModel(options.userinfo);
         UM.insertInfo(function(err, result) {
             if (err) {
@@ -446,6 +446,30 @@ var deletePBInfo = function(req, res) {
 
 }
 
+var failcntChange = function(req, res) {
+    console.log('로그인 fail 횟수 0 만들기...failcntChange 호출됨.');
+
+    var database = req.app.get('database');
+
+    // 데이터베이스 객체가 초기화된 경우
+    if (database.db) {
+
+        var userid = req.query.userid; //사용자 ID
+        database.UserModel.failcntzero(userid, function(err, user) {
+
+            if (err) {
+                res.json({ success: false, message: err });
+                res.end();
+            } 
+            console.log('0 만들었습니다.....');
+            res.json({ success: true, message: "OK" });
+            res.end();
+        });    
+    } else {
+        res.json({ success: false, message: "DB connection Error" });
+        res.end();
+    }
+}
 
 module.exports.userList = userList;
 module.exports.useridcheck = useridcheck;
@@ -459,3 +483,4 @@ module.exports.getCableList = getCableList;
 module.exports.getPBUserList = getPBUserList;
 module.exports.insertPBInfo = insertPBInfo;
 module.exports.deletePBInfo = deletePBInfo;
+module.exports.failcntChange = failcntChange;

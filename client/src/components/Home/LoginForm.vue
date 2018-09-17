@@ -60,19 +60,27 @@ export default {
     methods: {
         loginWithInfo(event) {
             console.log('loginWithInfo');
+            var dt = new Date();
+            var td_year = dt.getFullYear() ;
+            var td_month = dt.getMonth() + 1 ;
+            var td_date = dt.getDate() ;
+            if(td_month < 10) td_month = "0" + td_month ;
+            if(td_date < 10) td_date = "0" + td_date ;
+            var indate = td_year +'-'+ td_month +'-'+ td_date ;
+
             var vm = this;
             if (this.loginExceptionHandler()) return true;
             axios.post(Config.base_url+'/login', {
                 userid   : vm.userid,
                 password : vm.password,
-                count : vm.count,
+                count    : vm.count,
+                vueDate  : indate,
+                gubun    : 1                   //로그인 구분 : 로그인하면 방문자수가 올라가는데 사용자 설정 화면에서도 카운트가 올라가지 않게 하기 위해
             }).then(function(response) {
                 vm.clearForm();
                 if(response.data.success == true) {
                     // console.log(response.data);
                     var userid = response.data.userid;
-                    vm.updateVisitCount();              // 방문자수 업데이트 (v_count 컬렉션)
-                    vm.loginCount(userid);              // 당일접속 업데이트 (users 컬렉션)
                     vm.$store.commit(Constant.ADD_USER, {
                     userid: response.data.userid, 
                     username: response.data.username, 
@@ -93,7 +101,6 @@ export default {
                             }//market_gubun9:response.data.market_gubun9
                     });
                     var user_level = response.data.user_level;
-                    
                     //관리자와 일반유저 구분
                     if(user_level==="admin"){
                         vm.$router.push({
@@ -117,45 +124,6 @@ export default {
                     alert("비밀번호가 일치하지 않습니다. 5회 중 "+ cnt +"회 틀림.");
                 }
             });
-        },
-        updateVisitCount : function(){
-            console.log('updateVisitCount');
-            var dt = new Date();
-            var td_year = dt.getFullYear() ;
-            var td_month = dt.getMonth() + 1 ;
-            var td_date = dt.getDate() ;
-            if(td_month < 10) td_month = "0" + td_month ;
-            if(td_date < 10) td_date = "0" + td_date ;
-            var indate = td_year +'-'+ td_month +'-'+ td_date ;
-
-            axios.get(Config.base_url+'/updatevisitcount',{
-                params: {
-                    'vueDate': indate,
-                    'gubun'  : 1                   //로그인 구분 : 로그인하면 방문자수가 올라가는데 사용자 설정 화면에서도 카운트가 올라가지 않게 하기 위해
-                }
-            }).then(function(response){
-                // console.log(response);
-            });
-        },
-        loginCount: function(userid){
-            console.log('loginCount');
-            var dt = new Date();
-            var td_year = dt.getFullYear() ;
-            var td_month = dt.getMonth() + 1 ;
-            var td_date = dt.getDate() ;
-            if(td_month < 10) td_month = "0" + td_month ;
-            if(td_date < 10) td_date = "0" + td_date ;
-            var indate = td_year +'-'+ td_month +'-'+ td_date ;
-            
-            axios.get(Config.base_url+'/logincount',{
-                params: {
-                    'userid' : userid,
-                    'vueDate': indate,
-                }
-            }).then(function(response){
-                // console.log(response);
-            });
-
         },
         loginExceptionHandler() {
             if (this.userid === "" || this.password === "") {

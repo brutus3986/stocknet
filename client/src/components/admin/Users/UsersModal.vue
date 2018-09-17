@@ -31,9 +31,7 @@
                                     <span class="input-group-text"> <i class="far fa-id-card fa-fw"></i> </span>
                                 </div>
                                 <input type="text" class="form-control" v-model="userinfo.userid" id="userid" required="required">
-                            
-                                <toggle-button v-model="userinfo.lockyn" :color="{checked: '#f44e42', unchecked: '#c6c6c6'}" :labels="{checked: '잠김', unchecked: '풀림'}" :width="80" :height="35"/> 
-                                상태: <input type="text" v-model="userinfo.lockyn" style="width:50px;">
+                                <toggle-button id="changed-font"  @change="changeLock" v-model="userinfo.lockyn" :color="{checked: '#f44e42', unchecked: '#c6c6c6'}" :labels="{checked: '잠김', unchecked: '풀림'}" :sync="true" :width="80" :height="35"/> 
                                 <input type="hidden" v-bind:value="userinfo.oldId" id="oldId">   <!-- 사용자 계정변경시 예전 userid// -->
                             </div> <!-- 사용자계정 gubun=2 변경// -->
                             <div class="form-group input-group">
@@ -189,6 +187,8 @@
 </template>
 
 <script>
+import  Config       from  './../../../js/config.js'
+
 export default {
     props: ["userinfo", "gubun","cablelist"],
     data: function() {
@@ -274,6 +274,15 @@ export default {
                 this.conntime= this.userinfo.starttime + "시 ~ "+ this.userinfo.endtime + "시";
             }
             return this.conntime;
+        },
+        changeLock: function(){
+            axios.get(Config.base_url+'/failcountChange', {
+                    params:{
+                        "userid"   : this.userinfo.userid,
+                    }
+                }).then(function(response) {
+                    console.log('0 만들고 왔습니다!!');
+            });
         }
         
     }
@@ -336,20 +345,15 @@ export default {
     opacity: 0;
 }
 
-.modal-leave-active {
-    opacity: 0;
-}
-
 .modal-enter .modal-container,
 .modal-leave-active .modal-container {
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
 }
+.modal-leave-active {
+    opacity: 0;
+}
 
-.form-check-label {
-    /* padding: 0.3rem 0.5rem;
-    margin:0; */
-} 
 .form-check {padding:3px 0 8px;}
 .lamod {
     float: left;
@@ -441,5 +445,7 @@ export default {
 @media (min-width:992px) {
     .col-md-offset-2 {margin-left:16.66666667%;}
 }
-
+.vue-js-switch#changed-font {
+  font-size: 16px;
+}
 </style>

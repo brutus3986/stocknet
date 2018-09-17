@@ -23,13 +23,13 @@
             <div class="paging-row">
                 <div class="pginnerdiv">
                     <ul class="pagination">
-                        <li class="page-item"><a class="page-link"  @click="prevStory"> &laquo; </a></li>
+                        <li class="page-item"><a class="page-link"  @click="prevStory"> &lt;&lt; </a></li>
                         <li v-for="curPage in totalPage" v-bind:key="curPage.index">
                             <a class="page-link curpage"  @click="setPage(curPage)">
                                 {{curPage}}
                             </a>
                         </li> 
-                        <li class="page-item"><a class="page-link"  @click="nextStory"> >> </a></li>
+                        <li class="page-item"><a class="page-link"  @click="nextStory"> &gt;&gt; </a></li>
                     </ul>
                 </div>       
             </div>

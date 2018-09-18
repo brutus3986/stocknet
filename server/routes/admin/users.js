@@ -447,21 +447,20 @@ var deletePBInfo = function(req, res) {
 }
 
 var failcntChange = function(req, res) {
-    console.log('로그인 fail 횟수 0 만들기...failcntChange 호출됨.');
-
+    console.log('/admin/users/failcntChange 호출됨.');
+    //console.log('로그인 fail count 0으로..');
     var database = req.app.get('database');
-
+    var userid = req.query.userid; //사용자 ID
+    var lockyn = req.query.lockyn; //잠김 여부
+    var options = { "criteria": { "userid": userid }, "lockinfo": {"lockyn":lockyn, "loginfailcount": 0} };
     // 데이터베이스 객체가 초기화된 경우
     if (database.db) {
-
-        var userid = req.query.userid; //사용자 ID
-        database.UserModel.failcntzero(userid, function(err, user) {
-
+        database.UserModel.failcntzero(options, function(err, user) {
             if (err) {
                 res.json({ success: false, message: err });
                 res.end();
             } 
-            console.log('0 만들었습니다.....');
+            console.log("failCount made zero.... OK");
             res.json({ success: true, message: "OK" });
             res.end();
         });    

@@ -109,8 +109,9 @@ Schema.createSchema = function(mongoose) {
             return this.findOneAndUpdate({"userid":userid},  {"lockyn": true } ).exec(callback);
         },
         //로그인 성공시 failcnt 0으로 업데이트
-        failcntzero : function(userid, callback) {
-            return this.findOneAndUpdate({"userid":userid},  {"loginfailcount": 0 , "lockyn" : false} ).exec(callback);
+        failcntzero : function(options, callback) {
+            //return this.findOneAndUpdate({"userid":userid},  {"loginfailcount": 0 , "lockyn" : false} ).exec(callback);
+            return this.findOneAndUpdate(options.criteria, options.lockinfo).exec(callback);
         },
         //게시판구분(bbsid)으로 조회
         countByBbsId: function(options, callback) {

@@ -67,12 +67,14 @@ var checkLogin = function(req, res) {
                     console.log(' 접속시간 FROM : ' + user[0].endtime);
                     console.log(' 현재 시간대 :' + dt_time);
 
-                    countInfo(req,res); 
-                    usersloginCount(req,res);
-                    
+                                       
                     var dbIpaddr = user[0].ipaddr.split(',');
                     if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
                         if (user[0].starttime <= dt_time && dt_time <= user[0].endtime && user[0].lockyn == false) {
+                            
+                            countInfo(req,res); 
+                            usersloginCount(req,res);
+
                             database.UserModel.failcntzero(userid, function(err, user) {
                                 if (err) {
                                     console.log("Error.......: " + err);
@@ -182,12 +184,19 @@ var countInfo = function(req,res) {
                 if (req.body.gubun == 1) {
                    
                     var indate = req.body.vueDate;
-                    // console.log('vue에서 받은 오늘 날짜:'+ indate);
+                    console.log('vue에서 받은 오늘 날짜:'+ indate);
                     var dbdate = count[0].updated_at;
                     var inputDate = dbdate.toISOString().substr(0, 10);
 
-                    // console.log('DB에서 가져온 마지막 날짜 :'+ dbdate);
-                    // console.log('DB에서 가져온 마지막 날짜 변환 :'+ inputDate);
+                    console.log('DB에서 가져온 마지막 날짜 :'+ dbdate);
+                    console.log('DB에서 가져온 마지막 날짜 변환 :'+ inputDate);
+                    
+                    var test = Date();
+                    var test2 = new Date();
+                    var test3 = Date.toISOString();
+                    console.log('테스트 입니다....'+ test);
+                    console.log('테스트2 입니다....'+test2);
+                    console.log('테스트3 입니다....'+test3);
 
                     //조회날짜와 DB날짜가 같다면 (조회시점이 오늘이라면)
                     if (indate === inputDate) {

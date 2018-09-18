@@ -276,12 +276,14 @@ export default {
             return this.conntime;
         },
         changeLock: function(){
+            // console.log('잠김 상태 : ' + this.userinfo.lockyn);
             axios.get(Config.base_url+'/failcountChange', {
                     params:{
                         "userid"   : this.userinfo.userid,
+                        "lockyn"   : this.userinfo.lockyn
                     }
                 }).then(function(response) {
-                    console.log('0 만들고 왔습니다!!');
+                    //console.log('failCount zero..');
             });
         }
         

@@ -5,6 +5,8 @@
  * @author shjinji
  */
 
+var crypto = require('crypto');
+var config = require('../../config/config');
 
 //로그인
 var checkLogin = function(req, res) {
@@ -18,9 +20,6 @@ var checkLogin = function(req, res) {
         "criteria": { userid: req.body.userid, password: req.body.password}
     };
 
-    console.log('+++++++++++++++++++++++++++++++');
-    console.log('잘들어오나.. ' + vueDate + ' & gubun:  ' + gubun);
-
     // 운영으로 갈때 주석풀기
     // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
     var ip = "211.255.203.42";
@@ -30,7 +29,12 @@ var checkLogin = function(req, res) {
     var dt_time = dt.getHours();
     console.log('client IP***********--> ' + ip);
 
+    //options.criteria.userid = userid;
+    //options.criteria.hashed_password = crypto.createHash('sha256', config.pwd_salt).update(password).digest('base64');;
+
     console.log("userid : [" + userid + "]  password : [" + password + "]");
+// console.log("hashed_password : [" + options.criteria.hashed_password + "]");
+
     var database = req.app.get('database');
     
     if (userid.length > 0 && password.length > 0) {
@@ -79,7 +83,7 @@ var checkLogin = function(req, res) {
                                 if (err) {
                                     console.log("Error.......: " + err);
                                 }
-                                console.log('페일카운트......제로.....000000 ')
+                                // console.log('페일카운트......제로.....000000 ')
                             });    
                             res.json({
                                 success: true,
@@ -102,6 +106,7 @@ var checkLogin = function(req, res) {
                                 market_gubun7: user[0].market_gubun7,
                                 market_gubun8: user[0].market_gubun8
                             });
+                            makeSessionKey(req, user[0]);
                             res.end();
                         }else if(user[0].lockyn == true) {
                             console.log('계정 잠김 상태');
@@ -161,6 +166,17 @@ var checkLogin = function(req, res) {
     }
 };
 
+// 보안을 강화하고자 한다면, session key / IP를 DB에 저장하고 모든 조회시 체크
+// route_loader.js 지금은 loginkey == undefined 로만 체크하기로 함
+// 필요하면, IP / ID 로 DB 세션값 체크, 속도 이슈 생기면 DB를 REDIS로 구성
+var makeSessionKey = function(req, user) {
+    var sDate = new Date();
+
+    req.session.loginkey = user.ipaddr + "_" + user.userid + "_" + sDate.toString();
+    req.session.save();
+    console.log("session loginkey: " + req.session.loginkey);
+}
+
 //방문자수 카운트 후 업데이트 (v_count 컬렉션)
 var countInfo = function(req,res) {
     console.log('login 모듈 안에 있는 countInfo 호출됨.');
@@ -191,13 +207,6 @@ var countInfo = function(req,res) {
                     console.log('DB에서 가져온 마지막 날짜 :'+ dbdate);
                     console.log('DB에서 가져온 마지막 날짜 변환 :'+ inputDate);
                     
-                    var test = Date();
-                    var test2 = new Date();
-                    var test3 = Date.toISOString();
-                    console.log('테스트 입니다....'+ test);
-                    console.log('테스트2 입니다....'+test2);
-                    console.log('테스트3 입니다....'+test3);
-
                     //조회날짜와 DB날짜가 같다면 (조회시점이 오늘이라면)
                     if (indate === inputDate) {
                         //같은 날짜라면 오늘 방문자수 +1 

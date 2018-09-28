@@ -85,16 +85,13 @@ var useridcheck = function(req, res) {
             } else if (user) {
                 console.log(user);
                 if (user[0] == null) {
-                    console.log("사용가능한 ID..1");
                     res.json({ success: false, message: "No ID" });
                     res.end();
                 } else {
-                    console.log("존재하는 ID..");
                     res.json({ success: true, message: "HAS ID" });
                     res.end();
                 }
             } else {
-                console.log("사용가능한 ID..2");
                 res.json({ success: false, message: "No ID" });
                 res.end();
             }

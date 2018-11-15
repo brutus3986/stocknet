@@ -268,58 +268,6 @@ var confirmPwd = function(req, res) {
     }
 };
 
-
-//일반 사용자 비밀번호 변경
-var changePwd = function(req, res) {
-    console.log('일반사용자 changePwd 호출됨.');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-
-        var userid = req.body.userid; //사용자 ID
-        var pwdInfo = req.body.pwdInfo;
-        var orgpassword = req.body.orgpassword; //기존비밀번호
-        var options = { "criteria": { "userid": userid }, "pwdInfo": pwdInfo };
-
-        database.UserModel.getOrginPwd(options, function(err, result) {
-
-            if (err) {
-                res.json({ success: false, message: err });
-                res.end();
-            } else if (result) {
-                console.log(result);
-                var orginPwd = result[0].password;
-    
-                if (orgpassword == orginPwd) {
-                    database.UserModel.changePwd(options, function(err) {
-                        if (err) {
-                            console.log("Update.... FAIL " + err);
-                            res.json({ success: false, message: "FAIL" });
-                            res.end();
-                        } else {
-                            console.dir("Update.... OK ");
-                            res.json({ success: true, message: "OK" });
-                            res.end();
-                        }
-                    });
-                } else {
-                    console.log("Update.... FAIL " + err);
-                    res.json({ success: false, message: "Wrong Origin Password" });
-                    res.end();
-                }
-            } else {
-                res.json({ success: false, message: "No Data" });
-                res.end();
-            }
-        });
-    } else {
-        res.json({ success: false, message: "DB connection Error" });
-        res.end();
-    }
-}
-
 //사용자설정 조회장비명 가져오기
 var getCableList = function(req, res) {
     console.log('/users/getCableList 패스 요청됨.');
@@ -474,7 +422,6 @@ module.exports.updateInfo = updateInfo;
 module.exports.deleteInfo = deleteInfo;
 module.exports.resetCount = resetCount;
 module.exports.confirmPwd = confirmPwd;
-module.exports.changePwd = changePwd;
 module.exports.getCableList = getCableList;
 module.exports.getPBUserList = getPBUserList;
 module.exports.insertPBInfo = insertPBInfo;

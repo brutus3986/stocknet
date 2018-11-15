@@ -86,7 +86,7 @@ export default {
             }else if(this.password==''||this.newpassword==''||this.connewpassword==''){
                 alert('비밀번호를 입력해주십시오.')
             }else{
-                axios.post(Config.base_url+'/changepwd', {
+                axios.post(Config.base_url+'/user/changepwd', {
                     "userid"      : userid,
                     "orgpassword" : self.oldpassword,
                     "pwdInfo" : {

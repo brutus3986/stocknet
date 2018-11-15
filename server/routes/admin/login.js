@@ -20,7 +20,7 @@ var checkLogin = function(req, res) {
         "criteria": { userid: req.body.userid, password: req.body.password}
     };
 
-    // 운영으로 갈때 주석풀기
+    // 운영 전환
     // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
     var ip = "211.255.203.42";
     console.log('접속시도IP : ' + ip);

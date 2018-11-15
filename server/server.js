@@ -30,6 +30,9 @@ var flash = require('connect-flash');
 // 모듈로 분리한 설정 파일 불러오기
 var config = require('./config/config');
 
+// 모듈로 분리한 설정 파일 불러오기
+var cron = require('./config/cron_scheduler');
+
 // 모듈로 분리한 데이터베이스 파일 불러오기
 var database = require('./database/database');
 
@@ -82,6 +85,9 @@ var errorHandler = expressErrorHandler({
 
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
+
+// cron 작업 등록
+cron.init(app);
 
 //===== 서버 시작 =====//
 

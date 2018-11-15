@@ -91,7 +91,7 @@ export default {
                 console.log('fetchStories');
                 var vm = this;
                                 
-                axios.get(Config.base_url+'/board/liststory', {
+                axios.get(Config.base_url+'/user/board/liststory', {
                     params: {
                         "bbs_id" : this.bbs_id,
                         "seloption"  : this.seloption,
@@ -143,7 +143,7 @@ export default {
                 var vm = this;
                 story.view = story.view + 1;
                 
-                axios.post(Config.base_url+'/board/updateviewcount', {
+                axios.post(Config.base_url+'/user/board/updateviewcount', {
                     "bbs_id"   : this.bbs_id,
                     "story_id" : story.story_id,
                     "view"     : story.view,

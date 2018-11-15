@@ -88,7 +88,7 @@
 <script>
 import LoginForm        from './LoginForm.vue';
 import LoginNoticeModal from './LoginNoticeModal.vue';
-// import MainHeader       from './../common/MainHeader.vue'
+import MainHeader       from './../common/MainHeader.vue'
 
 export default {
     data() {
@@ -203,46 +203,6 @@ header p {color: #C0C0C0; margin-top:50px;
 .service a:hover .icontxt h4 { 
     color: #0080FF; 
 }
-@media (min-width: 768px) {
-    .icons { 
-        margin: 0 auto; 
-        position: relative; 
-        left: 30%;
-    }
-    .row div .icontxt {border-right:1px solid #e5e5e5;}
-    .row div:last-child .icontxt {border-right:none;}
-    .icontxt a i {position: relative;bottom:0;}
-
-}
-@media (max-width: 767px) {
-    .row div .icontxt {text-align:center;}
-    .icontxt a h4+p {min-height:40px;}
-    .icontxt a i {display:block;text-align: center;color:#538cc6;padding-right:0;}
-}
-@media (max-width: 360px) {
-    .icontxt p { 
-        display: none; 
-    }
-    .icontxt {
-        line-height:10px; 
-        padding: 0; 
-        margin: 0;
-    }
-    .icontxt h4 { 
-        display: none; 
-    }
-    .icons { 
-        padding: 20px; 
-        margin: 10px 0 10px 20px; 
-    }
-    .book img { 
-        width: 50%; 
-        height: auto;
-    }
-    .control { 
-        display: none;
-    } 
-}
 .about p { 
     line-height: 1.8em; 
     font-size: 18px; 
@@ -289,4 +249,47 @@ header p {color: #C0C0C0; margin-top:50px;
     margin-left: 100px;
     width: 100%;
 }
+/* @media */
+
+@media  (min-width: 768px) {
+    .icons { 
+        margin: 0 auto; 
+        position: relative; 
+        left: 30%;
+    }
+    .row div .icontxt {border-right:1px solid #e5e5e5;}
+    .row div:last-child .icontxt {border-right:none;}
+    .icontxt a i {position: relative;bottom:0;}
+
+}
+@media (max-width: 767px) {
+    .row div .icontxt {text-align:center;}
+    .icontxt a h4+p {min-height:140px;}
+    .icontxt a i {display:block;text-align: center;color:#538cc6;padding-right:0;}
+}
+@media (max-width: 767px) {
+    .icontxt p { 
+        display: none; 
+    }
+    .icontxt {
+        line-height:10px; 
+        padding: 0; 
+        margin: 0;
+    }
+    .icontxt h4+p { 
+        display: none; 
+    }
+    .icons { 
+        padding: 20px; 
+        margin: 10px 0 10px 20px; 
+    }
+    .book img { 
+        width: 50%; 
+        height: auto;
+    }
+    .control { 
+        display: none;
+    } 
+}
+
 </style>

@@ -169,6 +169,10 @@ Schema.createSchema = function(mongoose) {
         getUserByGubun: function(options, callback) {
             return this.find(options, { _id: false, userid: true, name: true, cable_name: true }).exec(callback);
         },
+        // 당일 방문수 초기화(cronjob)
+        initTodayVisit: function(callback) {
+            return this.update({}, {$set : {today_visit:0}}, {multi:true}).exec(callback);
+        },
         //어떻게 사용하지..
         authenticate: function(plainText, inSalt, hashed_password) {
             if (inSalt) {

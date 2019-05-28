@@ -1,1 +1,1 @@
-{ "options": {}, "indexes": [{ "v": 2, "key": { "_id": 1 }, "name": "_id_", "ns": "stocknet.vcounts" }], "uuid": "437a1dc499ac4f129f19b754cba08541" }
+{"options":{},"indexes":[{"v":2,"key":{"_id":1},"name":"_id_","ns":"stocknet.vcounts"}],"uuid":"b100bfe2dae0425ca8f8ded927bf9ccd"}

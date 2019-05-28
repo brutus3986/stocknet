@@ -20,14 +20,28 @@ var listStory = function(req, res) {
             "curPage": req.query.curPage
         };
         
+        if(req.query.searchinfo != '') {
+            console.log(req.query.searchinfo)
+           
+            var sinfo = '.*' + req.query.searchinfo + '*.';
+            if(req.query.seloption == 'title') {
+                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { title : {$regex : sinfo, $options:"i" }} ] };
+            }else if(req.query.seloption == 'writer') {
+                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { writer : {$regex : sinfo, $options:"i" }} ] };
+            }else {
+                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { contents : {$regex : sinfo, $options:"i" }} ] };
+            }
+        }
+
         database.BoardModel.countByBbsId(options, function(err, count) {
             if (err) {
                 console.dir(err);
                 res.json({ success: false, message: err });
                 res.end();
             } else if (count) {
+                // console.log('검색어와 일치합니다..'+count);
                 database.BoardModel.findByBbsId(options, function(err, results) {
-                    console.log(results);
+                    //console.log(results);
                     var totalPage = Math.ceil(count / req.query.perPage);
                     console.log("count : " + count + " totalPage : " + totalPage);
                     var pageInfo = {
@@ -40,6 +54,7 @@ var listStory = function(req, res) {
                     res.end();
                 });
             } else {
+                // console.log('일치하는 데이터가 없습니다!!');
                 res.json({ success: false, message: "No Data" });
                 res.end();
             }

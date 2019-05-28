@@ -42,25 +42,45 @@ export default {
     data() {
       return {
         userid   : "",
-        password : ""
-      };
+        password : "",
+        count:0,
+        };
+    },
+    computed: {
+        idcompare: function () {
+            if(this.connewpassword !== this.newpassword) {  //비밀번호 같지않음.
+                this.disabledBtn = true
+                return true;    // 두개의 값이 달라야 true가 되어 is invalid class active
+            }else{   //비밀번호 같음.
+                this.disabledBtn = false
+                return false;
+            }
+        },
     },
     methods: {
         loginWithInfo(event) {
             console.log('loginWithInfo');
+            var dt = new Date();
+            var td_year = dt.getFullYear() ;
+            var td_month = dt.getMonth() + 1 ;
+            var td_date = dt.getDate() ;
+            if(td_month < 10) td_month = "0" + td_month ;
+            if(td_date < 10) td_date = "0" + td_date ;
+            var indate = td_year +'-'+ td_month +'-'+ td_date ;
+
             var vm = this;
             if (this.loginExceptionHandler()) return true;
-            
             axios.post(Config.base_url+'/login', {
                 userid   : vm.userid,
-                password : vm.password
+                password : vm.password,
+                count    : vm.count,
+                vueDate  : indate,
+                gubun    : 1                   //로그인 구분 : 로그인하면 방문자수가 올라가는데 사용자 설정 화면에서도 카운트가 올라가지 않게 하기 위해
             }).then(function(response) {
                 vm.clearForm();
                 if(response.data.success == true) {
                     // console.log(response.data);
                     var userid = response.data.userid;
-                    vm.updateVisitCount();              // 방문자수 업데이트 (v_count 컬렉션)
-                    vm.loginCount(userid);              // 당일접속 업데이트 (users 컬렉션)
                     vm.$store.commit(Constant.ADD_USER, {
                     userid: response.data.userid, 
                     username: response.data.username, 
@@ -81,7 +101,6 @@ export default {
                             }//market_gubun9:response.data.market_gubun9
                     });
                     var user_level = response.data.user_level;
-                    
                     //관리자와 일반유저 구분
                     if(user_level==="admin"){
                         vm.$router.push({
@@ -96,49 +115,15 @@ export default {
                      alert("승인되지 않은 IP입니다.");
                 }else if(response.data.message == 'No Auth TIME' ) {  //승인되지 않은 접속시간
                      alert("승인되지 않은 시간입니다.");
-                }else {
-                    alert("ID 또는 비밀번호가 일치하지 않습니다.");
+                }else if(response.data.message == 'lock' ) {  //계정 잠김 상태
+                     alert("비밀번호 5회 이상 잘못 입력으로 인해 계정이 잠겼습니다. 관리자에게 문의주시기 바랍니다. 신광섭 ( 02-767-7128 )");
+                }else if(response.data.message == 'NOT USER' ) {  //계정이 존재하지 않음
+                     alert("존재하지 않는 ID 입니다.");
+                }else if(response.data.message == 'WRONG PASSWD' ){
+                    var cnt = response.data.cnt;
+                    alert("비밀번호가 일치하지 않습니다. 5회 중 "+ cnt +"회 틀림.");
                 }
             });
-        },
-        updateVisitCount : function(){
-            console.log('updateVisitCount');
-            var dt = new Date();
-            var td_year = dt.getFullYear() ;
-            var td_month = dt.getMonth() + 1 ;
-            var td_date = dt.getDate() ;
-            if(td_month < 10) td_month = "0" + td_month ;
-            if(td_date < 10) td_date = "0" + td_date ;
-            var indate = td_year +'-'+ td_month +'-'+ td_date ;
-
-            axios.get(Config.base_url+'/updatevisitcount',{
-                params: {
-                    'vueDate': indate,
-                    'gubun'  : 1                   //로그인 구분 : 로그인하면 방문자수가 올라가는데 사용자 설정 화면에서도 카운트가 올라가지 않게 하기 위해
-                }
-            }).then(function(response){
-                // console.log(response);
-            });
-        },
-        loginCount: function(userid){
-            console.log('loginCount');
-            var dt = new Date();
-            var td_year = dt.getFullYear() ;
-            var td_month = dt.getMonth() + 1 ;
-            var td_date = dt.getDate() ;
-            if(td_month < 10) td_month = "0" + td_month ;
-            if(td_date < 10) td_date = "0" + td_date ;
-            var indate = td_year +'-'+ td_month +'-'+ td_date ;
-            
-            axios.get(Config.base_url+'/logincount',{
-                params: {
-                    'userid' : userid,
-                    'vueDate': indate,
-                }
-            }).then(function(response){
-                // console.log(response);
-            });
-
         },
         loginExceptionHandler() {
             if (this.userid === "" || this.password === "") {

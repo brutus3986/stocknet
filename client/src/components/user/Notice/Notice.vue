@@ -15,21 +15,21 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" v-model.trim="searchinfo"/>
+                        <input type="text" class="form-control" v-model.trim="searchinfo" v-on:keyup.enter="fetchStories"/>
                     </div>    
                 </div>       
             </div>
-            <NoticeTable :stories="filtered"></NoticeTable>
+            <NoticeTable :stories="stories"></NoticeTable>
             <div class="paging-row">
                 <div class="pginnerdiv">
                     <ul class="pagination">
-                        <li class="page-item"><a class="page-link"  @click="prevStory"> &laquo; </a></li>
+                        <li class="page-item"><a class="page-link"  @click="prevStory"> &lt;&lt; </a></li>
                         <li v-for="curPage in totalPage" v-bind:key="curPage.index">
                             <a class="page-link curpage"  @click="setPage(curPage)">
                                 {{curPage}}
                             </a>
                         </li> 
-                        <li class="page-item"><a class="page-link"  @click="nextStory"> >> </a></li>
+                        <li class="page-item"><a class="page-link"  @click="nextStory"> &gt;&gt; </a></li>
                     </ul>
                 </div>       
             </div>
@@ -71,29 +71,7 @@ export default {
             NoticeModal : NoticeModal
         },
         computed:{
-            filtered: function(){
-                var selectinfo = this.seloption;
-                var sinfo = this.searchinfo;
-                if(selectinfo==="title"){
-                    return this.stories.filter(function(stories,index){
-                        if(stories.title.indexOf(sinfo) > -1){
-                            return true;
-                        }
-                    })
-                }else if (selectinfo==="writer"){
-                    return this.stories.filter(function(stories,index){
-                        if(stories.writer.indexOf(sinfo) > -1){
-                        return true;
-                        }
-                    })
-                }else {
-                    return this.stories.filter(function(stories,index){
-                        if(stories.contents.indexOf(sinfo) > -1){
-                        return true;
-                        }
-                    })
-                }
-            },
+            
         },
         created: function() {
             this.$EventBus.$on('closeStory'  , this.closeStory );
@@ -113,9 +91,11 @@ export default {
                 console.log('fetchStories');
                 var vm = this;
                                 
-                axios.get(Config.base_url+'/board/liststory', {
+                axios.get(Config.base_url+'/user/board/liststory', {
                     params: {
                         "bbs_id" : this.bbs_id,
+                        "seloption"  : this.seloption,
+                        "searchinfo" : this.searchinfo,
                         "curPage": this.curPage,
                         "perPage": this.perPage
                     }
@@ -163,7 +143,7 @@ export default {
                 var vm = this;
                 story.view = story.view + 1;
                 
-                axios.post(Config.base_url+'/board/updateviewcount', {
+                axios.post(Config.base_url+'/user/board/updateviewcount', {
                     "bbs_id"   : this.bbs_id,
                     "story_id" : story.story_id,
                     "view"     : story.view,

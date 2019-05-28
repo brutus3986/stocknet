@@ -23,27 +23,22 @@ export const routes = [
     children: [
         {
             path : 'notice',
-            alias : '/notice',
             component: Notice
         },
         {
             path : 'chart',
-            alias : '/chart',
             component: Chart
         },
         {
             path : 'chartterm',
-            alias : '/chartterm',
             component: ChartTerm
         },
         {
             path : 'users',
-            alias : '/users',
             component: Users
         },
         {
             path : 'changeadpwd',
-            alias : '/changeadpwd',
             component: ChangeAdPwd
         },
     ]
@@ -54,22 +49,18 @@ export const routes = [
     children: [
         {
             path : 'notice',
-            alias : '/notice',
             component: UNotice
         },
         {
             path : 'chart',
-            alias : '/chart',
             component: UChart
         },
         {
             path : 'chartterm',
-            alias : '/chartterm',
             component: UChartTerm
         },
         {
             path : 'changepwd',
-            alias : '/changepwd',
             component: ChangePwd
         },
     ]

@@ -15,13 +15,13 @@
                             <router-link to="/user/chartterm" class="nav-link">기간성능</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to="/changepwd" class="nav-link">비밀번호변경</router-link>
+                            <router-link to="/user/changepwd" class="nav-link">비밀번호변경</router-link>
                         </li>
                     </ul>
                 </div>
                 <div class="navbar-nav">
                     <li>
-                        <router-link to="/changepwd" class="info"><i class="fa fa-user"></i> {{ username }} 님</router-link>
+                        <router-link to="/user/changepwd" class="info"><i class="fa fa-user"></i> {{ username }} 님</router-link>
                     </li>
                     <li>
                         <a class="btn-login" @click="logout"><i class="fa fa-sign-out-alt"></i> LOGOUT </a>  

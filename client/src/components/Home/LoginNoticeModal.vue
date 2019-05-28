@@ -13,21 +13,24 @@
                         <br/>
                         7월 16일 부로 <strong>"코스콤 회선 트래픽 웹서비스"</strong> &nbsp;홈페이지가<br/>
                         <br/>
-                        개편되었습니다.<br/>
-                        <br/>
-                        사용자 접속 계정의 비밀번호가 <span style="color:red;font-weight:bold">초기화</span> 되었습니다.<br/>
+                        개편되었습니다. 사용자 접속 계정의 비밀번호가 <span style="color:red;font-weight:bold">초기화</span> 되었으니<br/>
                         <br/>
                         최초 접속시, 코스콤 담당자께 반드시 문의 주시기 바랍니다.<br/>
                         <br/>
                         </p>
                         <p style="margin-left:25px;">
                         <i class="fas fa-check fa-fw"></i>
-                        코스콤 회선 트래픽 웹서비스는 크롬(Chrome),</p>
-                        <p style="margin-left:50px;">익스플로러 11버전(ie11)에 최적화 되어 있습니다.</p>
+                        코스콤 회선 트래픽 웹서비스는 크롬(Chrome), 익스플로러 </p>
+                        <p style="margin-left:50px;"> 11버전(ie11)에 최적화 되어 있습니다.</p>
+                        <br/>
+                        <p style="margin-left:25px;">
+                        <i class="fas fa-check fa-fw"></i>
+                        사용자 비밀번호를 <span style="color:red;font-weight:bold"> 5회</span> 잘못 입력한 경우, 서비스 이용에 </p>
+                        <p style="margin-left:50px;">제한이 됩니다.</p>
                         <br/>
                         <p style="margin-left:25px;">
                         <i class="fas fa-user fa-fw"></i>
-                        담당자 : 신광섭 과장( 02-767-7128 / ksshin@koscom.co.kr)<br/>
+                        담당자 :  &nbsp;신광섭 과장 ( 02-767-7128 / ksshin@koscom.co.kr)<br/>
                         <p class="space_mod">양현중 대리 ( 02-767-7119 / yang@koscom.co.kr)</p>
                     </div>
                     <div class="modal-footer">
@@ -75,8 +78,8 @@ export default {
 }
 
 .modal-container {
-    width: 570px;
-    height: 660px;
+    width: 580px;
+    height: 710px;
     margin: 0px auto;
     padding: 20px;
     background-color: #fff;

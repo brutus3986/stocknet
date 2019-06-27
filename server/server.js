@@ -34,13 +34,17 @@ var config = require('./config/config');
 var cron = require('./config/cron_scheduler');
 
 // 모듈로 분리한 데이터베이스 파일 불러오기
-var database = require('./database/database');
+//var database = require('./database/database');
+const Pool = require("./database/pool");
+const pool = new Pool();
 
 // 모듈로 분리한 라우팅 파일 불러오기
 var route_loader = require('./routes/route_loader');
 
 // 익스프레스 객체 생성
 var app = express();
+app.set("pool", pool);
+app.set("mapper", pool.getMapper());
 
 //===== 서버 변수 설정 및 static으로 public 폴더 설정  =====//
 console.log('config.server_port : %d', config.server_port);
@@ -107,14 +111,14 @@ process.on('SIGTERM', function() {
 
 app.on('close', function() {
     console.log("Express 서버 객체가 종료됩니다.");
-    if (database.db) {
-        database.db.close();
-    }
+    //if (database.db) {
+    //    database.db.close();
+   // }
 });
 
 // 시작된 서버 객체를 리턴받도록 합니다. 
 var server = http.createServer(app).listen(app.get('port'), function(req, res) {
     console.log('서버가 시작되었습니다. 포트 : ' + app.get('port'));
     // 데이터베이스 초기화
-    database.init(app, config);
+    //database.init(app, config);
 });

@@ -9,7 +9,7 @@
 
 var route_loader = {};
 
-var config = require('../config/config');
+var config = require('../config/route_config');
 
 route_loader.sessionCheckRegister = function(app) {
 	console.log('route_loader.sessionCheckRegister 호출됨.');

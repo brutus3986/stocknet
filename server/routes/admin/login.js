@@ -7,6 +7,8 @@
 
 var crypto = require('crypto');
 var config = require('../../config/config');
+var Promise = require("bluebird");
+var async = require('async');
 
 //로그인
 var checkLogin = function(req, res) {
@@ -21,9 +23,8 @@ var checkLogin = function(req, res) {
     };
 
     // 운영 전환
-    // var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
-    var ip = "211.255.203.42";
-    console.log('접속시도IP : ' + ip);
+     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+ 
     //접속 허용 시간 
     var dt = new Date();
     var dt_time = dt.getHours();
@@ -34,132 +35,153 @@ var checkLogin = function(req, res) {
 
     console.log("userid : [" + userid + "]  password : [" + password + "]");
 // console.log("hashed_password : [" + options.criteria.hashed_password + "]");
-
-    var database = req.app.get('database');
-    
+   
     if (userid.length > 0 && password.length > 0) {
-        // var UM = req.app.get('database').UserModel;
-        database.UserModel.checkByUserID(userid, function(err, user) {  //존재하는 계정인지 검색
-            //console.log(JSON.stringify(user));
-            
-            //존재하는 계정의 비밀번호 틀린 횟수와 잠김여부
-            var count = user.loginfailcount;
-            var lockyn = user.lockyn;
-            
-            // 등록된 사용자의 경우
-            if(user !== null){
-                console.log('id가 존재합니다.');
-                if (err) {
-                    console.log("Error.......: " + err);
-                    res.json({ success: false, message: err });
-                    res.end();
-                }
-                database.UserModel.loginByUser(options, function(err, user) {
-                    if (err) {
-                        console.log("Error.......: " + err);
-                        res.json({ success: false, message: err });
-                        res.end();
-                    }
-                    
-                    if (user.length > 0) {    //ID와 비밀번호가 동시에 일치하는 경우 1
-                    console.log('계정 일치.');
-                    console.log('잠김여부 : '+ user[0].lockyn);
-                    console.log('fail count : '+ user[0].loginfailcount);
-                    console.log(' 이름 : ' + user[0].name);
-                    console.log(' IP주소 : ' + user[0].ipaddr);
-                    console.log(' 접속시간 TO : ' + user[0].starttime);
-                    console.log(' 접속시간 FROM : ' + user[0].endtime);
-                    console.log(' 현재 시간대 :' + dt_time);
+            try{
+                var pool = req.app.get("pool");
+                var mapper = req.app.get("mapper");
+                var options = { userid : userid };
+                console.log(stmt);
+                Promise.using(pool.connect(), conn => {
+                conn.queryAsync(stmt).then(user => {
 
-                                       
-                    var dbIpaddr = user[0].ipaddr.split(',');
-                    if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
-                        if (user[0].starttime <= dt_time && dt_time <= user[0].endtime && user[0].lockyn == false) {
-                            
-                            countInfo(req,res); 
-                            usersloginCount(req,res);
+                //database.UserModel.checkByUserID(userid, function(err, user) {  //존재하는 계정인지 검색
+                console.log(JSON.stringify(user));
+                
+                //존재하는 계정의 비밀번호 틀린 횟수와 잠김여부
+                var count = user[0].loginfailcount;
+                var lockyn = user[0].lockyn;
+                
+                    // 등록된 사용자의 경우
+                        if(user[0] != null){
 
-                            database.UserModel.failcntzero(userid, function(err, user) {
+                            database.UserModel.loginByUser(options, function(err, user) {
                                 if (err) {
                                     console.log("Error.......: " + err);
+                                    res.json({ success: false, message: err });
+                                    res.end();
                                 }
-                                // console.log('페일카운트......제로.....000000 ')
-                            });    
+                                
+                                if (user.length > 0) {    //ID와 비밀번호가 동시에 일치하는 경우 1
+                                console.log('계정 일치.');
+                                console.log('잠김여부 : '+ user[0].lockyn);
+                                console.log('fail count : '+ user[0].loginfailcount);
+                                console.log(' 이름 : ' + user[0].name);
+                                console.log(' IP주소 : ' + user[0].ipaddr);
+                                console.log(' 접속시간 TO : ' + user[0].starttime);
+                                console.log(' 접속시간 FROM : ' + user[0].endtime);
+                                console.log(' 현재 시간대 :' + dt_time);
+
+                                                
+                                var dbIpaddr = user[0].ipaddr.split(',');
+                                if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
+                                    if (user[0].starttime <= dt_time && dt_time <= user[0].endtime && user[0].lockyn == false) {
+                                        
+                                        countInfo(req,res); 
+                                        usersloginCount(req,res);
+
+                                        database.UserModel.failcntzero(userid, function(err, user) {
+                                            if (err) {
+                                                console.log("Error.......: " + err);
+                                            }
+                                            // console.log('페일카운트......제로.....000000 ')
+                                        });    
+                                        res.json({
+                                            success: true,
+                                            message: "OK",
+                                            userid: userid,
+                                            username: user[0].name,
+                                            user_level: user[0].user_level,
+                                            lockyn: user[0].lockyn,
+                                            machine_name: user[0].machine_name,
+                                            route_gubun1: user[0].route_gubun1,
+                                            route_gubun2: user[0].route_gubun2,
+                                            route_gubun3: user[0].route_gubun3,
+                                            route_gubun4: user[0].route_gubun4,
+                                            market_gubun1: user[0].market_gubun1,
+                                            market_gubun2: user[0].market_gubun2,
+                                            market_gubun3: user[0].market_gubun3,
+                                            market_gubun4: user[0].market_gubun4,
+                                            market_gubun5: user[0].market_gubun5,
+                                            market_gubun6: user[0].market_gubun6,
+                                            market_gubun7: user[0].market_gubun7,
+                                            market_gubun8: user[0].market_gubun8
+                                        });
+                                        makeSessionKey(req, user[0]);
+                                        res.end();
+                                    }else if(user[0].lockyn == true) {
+                                        console.log('계정 잠김 상태');
+                                        res.json({ success: false, message: "lock" });
+                                        res.end();
+                                    }else {
+                                        console.log('계정은 일치, IP정보 일치, 접속시간 불일치');
+                                        res.json({ success: false, message: "No Auth TIME" });
+                                        res.end();
+                                    }
+                                } else {
+                                    console.log('계정은 일치하지만, IP정보가 다름!!');
+                                    res.json({ success: false, message: "No Auth IP" });
+                                    res.end();
+                                }
+                            }else{
+                                console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
+                                
+                                if(count <= 4 && lockyn===false){  //비밀번호만 틀리고 계정이 잠기지 않은 상태
+                                    console.log('비밀번호만 틀리고 계정이 잠기지 않은 상태');
+                                    res.json({ success: false, message: "WRONG PASSWD" , cnt: count+1});
+                                    res.end();
+                                    if(count==4){
+                                        database.UserModel.loginfaillock(userid, function(err) {
+                                            if (err) {
+                                                console.log("lock.... FAIL " + err);
+                                            } else {
+                                                console.dir("lock.... OK ");
+                                            }
+                                        });
+                                    }else{
+                                        //fail count  업데이트 
+                                        database.UserModel.countPlus(userid, function(err) {
+                                            if (err) {
+                                                console.log("failCountUpdate.... FAIL " + err);
+                                            } else {
+                                                console.dir("failCountUpdate.... OK ");
+                                            }
+                                        });
+                                    }
+                                }else{   //비밀번호가 틀리고 계정이 잠긴 상태
+                                    console.log('비밀번호만 틀리고 계정이 잠긴 상태');
+                                    res.json({ success: false, message: "lock" });
+                                    res.end();
+                                }
+                            }
+                        }).catch(err => {
+                            console.log("Error while performing Query.");
                             res.json({
-                                success: true,
-                                message: "OK",
-                                userid: userid,
-                                username: user[0].name,
-                                user_level: user[0].user_level,
-                                lockyn: user[0].lockyn,
-                                machine_name: user[0].machine_name,
-                                route_gubun1: user[0].route_gubun1,
-                                route_gubun2: user[0].route_gubun2,
-                                route_gubun3: user[0].route_gubun3,
-                                route_gubun4: user[0].route_gubun4,
-                                market_gubun1: user[0].market_gubun1,
-                                market_gubun2: user[0].market_gubun2,
-                                market_gubun3: user[0].market_gubun3,
-                                market_gubun4: user[0].market_gubun4,
-                                market_gubun5: user[0].market_gubun5,
-                                market_gubun6: user[0].market_gubun6,
-                                market_gubun7: user[0].market_gubun7,
-                                market_gubun8: user[0].market_gubun8
+                                success: false,
+                                message: err
                             });
-                            makeSessionKey(req, user[0]);
                             res.end();
-                        }else if(user[0].lockyn == true) {
-                            console.log('계정 잠김 상태');
-                            res.json({ success: false, message: "lock" });
-                            res.end();
-                        }else {
-                            console.log('계정은 일치, IP정보 일치, 접속시간 불일치');
-                            res.json({ success: false, message: "No Auth TIME" });
-                            res.end();
-                        }
-                    } else {
-                        console.log('계정은 일치하지만, IP정보가 다름!!');
-                        res.json({ success: false, message: "No Auth IP" });
+                        });
+
+
+                    }else{
+                        console.log('존재하지 않는 ID입니다.....')
+                        res.json({ success: false, message: "NOT USER" });
                         res.end();
                     }
-                }else{
-                    console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
-                    
-                    if(count <= 4 && lockyn===false){  //비밀번호만 틀리고 계정이 잠기지 않은 상태
-                        console.log('비밀번호만 틀리고 계정이 잠기지 않은 상태');
-                        res.json({ success: false, message: "WRONG PASSWD" , cnt: count+1});
-                        res.end();
-                        if(count==4){
-                            database.UserModel.loginfaillock(userid, function(err) {
-                                if (err) {
-                                    console.log("lock.... FAIL " + err);
-                                } else {
-                                    console.dir("lock.... OK ");
-                                }
-                            });
-                        }else{
-                            //fail count  업데이트 
-                            database.UserModel.countPlus(userid, function(err) {
-                                if (err) {
-                                    console.log("failCountUpdate.... FAIL " + err);
-                                } else {
-                                    console.dir("failCountUpdate.... OK ");
-                                }
-                            });
-                        }
-                    }else{   //비밀번호가 틀리고 계정이 잠긴 상태
-                        console.log('비밀번호만 틀리고 계정이 잠긴 상태');
-                        res.json({ success: false, message: "lock" });
-                        res.end();
-                    }
-                }
+
+                }).catch(err => {
+                    console.log("Error while performing Query.");
+                    res.json({
+                        success: false,
+                        message: err
+                    });
+                    res.end();
+                });
             });
-            }else{
-                console.log('존재하지 않는 ID입니다.....')
-                res.json({ success: false, message: "NOT USER" });
-                res.end();
-            }
-        });
+        } catch(exception) {
+            console.log("err=>");
+        }      
     } else {
         res.json({ success: false, message: "ERROR LOGIN" });
         res.end();

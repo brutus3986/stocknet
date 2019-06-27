@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="userInfo">
+
+<select id="checkByUserID" >
+    <![CDATA[
+        select userid ,loginfailcount ,lockyn from  
+        users 
+        WHERE userid =  #{userid}  
+    ]]>	
+</select>
+
+<select id="getUser" >
+    <![CDATA[
+        select * from  
+        users 
+        WHERE userid =  #{userid}  
+    ]]>	
+</select>
+
+<update id="updateInfo" >
+    <![CDATA[
+    update users set total_visit = total_visit + 1 , today_visit = today_visit + 1 , last_visitday = now()
+    where userid =  #{userid}     
+    ]]>	
+</update>    
+<select id="countAllUser" >
+    <![CDATA[
+        select count(1)  userCnt from   users 
+    ]]>	
+    <where>
+    <if test="searchinfo != null and searchinfo != '' " >
+        <if test="seloption =='name'">
+            <![CDATA[ name like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
+        </if>
+        <if test="seloption =='userid'">
+            <![CDATA[ userid like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
+        </if>
+        <if test="seloption =='comp_name'">
+            <![CDATA[ comp_name like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
+        </if>
+    </if>
+    </where>
+</select>
+
+<select id="getUserList" >
+    <![CDATA[
+        select * from   users  
+    ]]>	
+    <where>
+    <if test="searchinfo != null and searchinfo != '' " >
+        <if test="seloption =='name'">
+            <![CDATA[ name like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
+        </if>
+        <if test="seloption =='userid'">
+            <![CDATA[ userid like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
+        </if>
+        <if test="seloption =='comp_name'">
+            <![CDATA[ comp_name like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
+        </if>
+    </if>
+    </where>
+    order by updated_at desc  limit  ${startPage} ,  ${limitPage}  
+</select>
+
+<select id="getUserId" >
+    <![CDATA[
+        select * from   users  where userid = #{userid}
+    ]]>	
+  
+</select>
+
+<select id="getUserIdPassword" >
+    <![CDATA[
+        select * from   users  where userid = #{userid}  and hashed_password = #{hashed_password} 
+    ]]>	
+</select>
+
+<update id="pwdUpdate" >
+    <![CDATA[
+        update users set hashed_password = #{hashed_password},updated_at = now()  where userid = #{userid}
+    ]]>	
+ </update>
+
+<insert id="insertUser" >
+  <![CDATA[
+      insert  
+        into users
+          (              
+              userid
+              ,comp_name
+              ,comp_no
+              ,created_at
+              ,email
+              ,endtime
+              ,hashed_password
+              ,ipaddr
+              ,last_visitday
+              ,name 
+              ,password
+              ,phonenumber
+              ,starttime
+              ,user_level 
+              ,updated_at
+              ,today_visit
+              ,total_visit
+ 
+          )
+      values
+          ( 
+              #{userid}
+              ,#{comp_name}
+              ,#{comp_no}
+              ,now()
+              ,#{email}
+              ,#{endtime}
+              ,#{hashed_password}
+              ,#{ipaddr}
+              ,now()
+              ,#{name}
+              ,#{password}
+              ,#{phonenumber}
+              ,#{starttime}
+              ,#{user_level}
+              ,now()
+              ,0
+              ,0
+          )
+  ]]>	
+</insert>
+<update id="updateUser" >
+  <![CDATA[
+      update users
+         set   comp_name        =     #{comp_name} 
+              ,comp_no          =     #{comp_no}
+              ,updated_at       =     now()
+              ,email            =     #{email}
+              ,endtime          =     #{endtime}
+              ,ipaddr           =     #{ipaddr}
+              ,name             =     #{name}
+              ,phonenumber      =     #{phonenumber}
+              ,starttime        =     #{starttime}
+              ,user_level       =     #{user_level}
+      where   userid            =     #{userid}
+
+  ]]>
+</update>	
+<delete id="daleteUser" >
+  <![CDATA[
+      delete from  users
+      where   userid            =     #{userid}
+  ]]>
+</delete>	
+</mapper>

@@ -5,7 +5,7 @@
 
 <select id="checkByUserID" >
     <![CDATA[
-        select userid ,loginfailcount ,lockyn from  
+        select loginfailcount ,lockyn from  
         users 
         WHERE userid =  #{userid}  
     ]]>	
@@ -15,16 +15,69 @@
     <![CDATA[
         select * from  
         users 
-        WHERE userid =  #{userid}  
+        WHERE userid =  #{userid}  and password = #{password}
     ]]>	
 </select>
-
-<update id="updateInfo" >
+<update id="failcntzero" >
     <![CDATA[
-    update users set total_visit = total_visit + 1 , today_visit = today_visit + 1 , last_visitday = now()
+    update users set loginfailcount = 0 , lockyn ='N'
     where userid =  #{userid}     
     ]]>	
 </update>    
+<select id="getVisitCount" >
+    <![CDATA[
+        select today_count,total_count from  
+        users 
+        WHERE userid =  #{userid}  and password = #{password}
+    ]]>	
+</select>
+
+
+<update id="updateInfo" >
+    <![CDATA[
+    update users set total_visit = #{total_visit} , today_visit =#{totatoday_visitl_visit} , last_visitday = now()
+    where userid =  #{userid}     
+    ]]>	
+</update>    
+<update id="loginfaillock" >
+    <![CDATA[
+    update users set loginfailcount = 5 , lockyn ='Y'
+    where userid =  #{userid}     
+    ]]>	
+</update>   
+<update id="countPlus" >
+    <![CDATA[
+    update users set loginfailcount = loginfailcount + 1
+    where userid =  #{userid}     
+    ]]>	
+</update>   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <select id="countAllUser" >
     <![CDATA[
         select count(1)  userCnt from   users 

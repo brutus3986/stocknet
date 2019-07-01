@@ -8,7 +8,7 @@
 
 //공지사항 리스트 
 var listStory = function(req, res) {
-    console.log('/board/liststory 패스 요청됨.');
+    console.log('/board/liststory 패스 요청됨. user');
 
     var database = req.app.get('database');
 

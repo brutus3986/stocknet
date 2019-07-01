@@ -10,12 +10,10 @@ var getUserList = function(req, res) {
     var gubun2 = req.body.gubun2; // 대분류
     var gubun3 = req.body.gubun3; // 중분류
     var tick = 0;
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-        var options = {};
+    try{
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
+         var options = {};
         // gubun2 = 대분류 0: 전체, 1: 주문 , 2: 시세 , 3: PB
         if (gubun2 == 1) { //주문 선택
             var tick = 1;
@@ -51,21 +49,46 @@ var getUserList = function(req, res) {
         }
         if (tick == 1) { //주문과 시세면..
             options["user_level"] = "normal";
-
-            database.UserModel.getUserByGubun(options, function(err, results) {
-                // console.log('유저리스트..'+results)
-                var resBody = { "userlist": results };
-                succSend(res, resBody);
+            var stmt = mapper.getStatement('userInfo', 'getUserByGubun', options, {language:'sql', indent: '  '});
+            console.log(stmt);
+            Promise.using(pool.connect(), conn => {
+                conn.queryAsync(stmt).then(results => {
+                    console.log('유저리스트..'+results)
+                    var resBody = { "userlist": results };
+                    succSend(res, resBody);
+                 }).catch(err => {
+                    console.log("getUserByGubun.... error " + err);
+                });
             });
+
+
+            // database.UserModel.getUserByGubun(options, function(err, results) {
+            //      console.log('유저리스트..'+results)
+            //     var resBody = { "userlist": results };
+            //     succSend(res, resBody);
+            // });
         } else {
             // PB는 회원 권한 체크 없음.
-            database.PBCableModel.findPBUSerbyChart(function(err, results) {
-                // console.log('유저리스트..'+results);
-                var resBody = { "userlist": results };
-                succSend(res, resBody);
+            var stmt = mapper.getStatement('userInfo', 'findPBUSerbyChart', options, {language:'sql', indent: '  '});
+            console.log(stmt);
+            Promise.using(pool.connect(), conn => {
+                conn.queryAsync(stmt).then(results => {
+                    console.log('pb유저리스트..'+results);
+                    var resBody = { "userlist": results };
+                    succSend(res, resBody);
+                 }).catch(err => {
+                    console.log("getUserByGubun.... error " + err);
+                });
             });
+
+
+            // database.PBCableModel.findPBUSerbyChart(function(err, results) {
+            //      console.log('pb유저리스트..'+results);
+            //     var resBody = { "userlist": results };
+            //     succSend(res, resBody);
+            // });
         }
-    } else {
+    } catch(exception) {
         errSend(res, "DB connection Error");
     }
 };

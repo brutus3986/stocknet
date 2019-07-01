@@ -21,8 +21,11 @@ var checkLogin = function(req, res) {
     var options = {userid: req.body.userid, password: req.body.password};
 
     // 운영 전환
-     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
- 
+    if(config.runenv == "dev") {
+        var ip = "211.255.203.41";
+    }else {
+        var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+    }
     //접속 허용 시간 
     var dt = new Date();
     var dt_time = dt.getHours();
@@ -51,6 +54,9 @@ var checkLogin = function(req, res) {
                         console.log(stmt);
                         Promise.using(pool.connect(), conn => {
                             conn.queryAsync(stmt).then(user => {
+                                //존재하는 계정의 비밀번호 틀린 횟수와 잠김여부
+                                var count = rows[0][0].loginfailcount;
+                                var lockyn = rows[0][0].lockyn;
                                 if (user[0].length > 0) {    //ID와 비밀번호가 동시에 일치하는 경우 1
                                     console.log('계정 일치.');
                                     console.log('잠김여부 : '+ user[0][0].lockyn);
@@ -60,22 +66,20 @@ var checkLogin = function(req, res) {
                                     console.log(' 접속시간 TO : ' + user[0][0].starttime);
                                     console.log(' 접속시간 FROM : ' + user[0][0].endtime);
                                     console.log(' 현재 시간대 :' + dt_time);
-                                               //존재하는 계정의 비밀번호 틀린 횟수와 잠김여부
-                                    var count = rows[0][0].loginfailcount;
-                                    var lockyn = rows[0][0].lockyn;
+
                                     var dbIpaddr = user[0][0].ipaddr.split(',');
-                                    if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
-                                        if (user[0][0].starttime <= dt_time && dt_time <= user[0][0].endtime && user[0][0].lockyn == false) {
+                                     if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
+                                        if (user[0][0].starttime <= dt_time && dt_time <= user[0][0].endtime && user[0][0].lockyn != 'Y') {
                                             
                                             countInfo(req,res); 
-                                            usersloginCount(req,res);
+                                            //usersloginCount(req,res);
 
                                             // database.UserModel.failcntzero(userid, function(err, user) {
                                             //     if (err) {
                                             //         console.log("Error.......: " + err);
                                             //     }
                                             //     // console.log('페일카운트......제로.....000000 ')
-                                            // });    
+                                            // }); 
                                             var stmt = mapper.getStatement('userInfo', 'failcntzero', options, {language:'sql', indent: '  '});
                                             console.log(stmt);
                                             Promise.using(pool.connect(), conn => {
@@ -90,26 +94,27 @@ var checkLogin = function(req, res) {
                                                 success: true,
                                                 message: "OK",
                                                 userid: userid,
-                                                username: user[0].name,
-                                                user_level: user[0].user_level,
-                                                lockyn: user[0].lockyn,
-                                                machine_name: user[0].machine_name,
-                                                route_gubun1: user[0].route_gubun1,
-                                                route_gubun2: user[0].route_gubun2,
-                                                route_gubun3: user[0].route_gubun3,
-                                                route_gubun4: user[0].route_gubun4,
-                                                market_gubun1: user[0].market_gubun1,
-                                                market_gubun2: user[0].market_gubun2,
-                                                market_gubun3: user[0].market_gubun3,
-                                                market_gubun4: user[0].market_gubun4,
-                                                market_gubun5: user[0].market_gubun5,
-                                                market_gubun6: user[0].market_gubun6,
-                                                market_gubun7: user[0].market_gubun7,
-                                                market_gubun8: user[0].market_gubun8
+                                                username: user[0][0].name,
+                                                user_level: user[0][0].user_level,
+                                                lockyn: user[0][0].lockyn,
+                                                machine_name: user[0][0].machine_name,
+                                                route_gubun1: user[0][0].route_gubun1,
+                                                route_gubun2: user[0][0].route_gubun2,
+                                                route_gubun3: user[0][0].route_gubun3,
+                                                route_gubun4: user[0][0].route_gubun4,
+                                                market_gubun1: user[0][0].market_gubun1,
+                                                market_gubun2: user[0][0].market_gubun2,
+                                                market_gubun3: user[0][0].market_gubun3,
+                                                market_gubun4: user[0][0].market_gubun4,
+                                                market_gubun5: user[0][0].market_gubun5,
+                                                market_gubun6: user[0][0].market_gubun6,
+                                                market_gubun7: user[0][0].market_gubun7,
+                                                market_gubun8: user[0][0].market_gubun8
                                             });
-                                            makeSessionKey(req, user[0]);
+                                            makeSessionKey(req, user[0][0]);
                                             res.end();
                                         }else if(user[0][0].lockyn == 'Y') {
+                                                console.log(user[0][0].lockyn);
                                                 console.log('계정 잠김 상태');
                                                 res.json({ success: false, message: "lock" });
                                                 res.end();
@@ -229,13 +234,12 @@ var makeSessionKey = function(req, user) {
 //방문자수 카운트 후 업데이트 (v_count 컬렉션)
 var countInfo = function(req,res) {
     console.log('login 모듈 안에 있는 countInfo 호출됨.');
-
     try {
         var pool = req.app.get("pool");
         var mapper = req.app.get("mapper");
+        var options = {userid: req.body.userid, password: req.body.password};
         //카운트 조회
         var stmt = mapper.getStatement('userInfo', 'getVisitCount', options, {language:'sql', indent: '  '});
-    
         console.log(stmt);
         Promise.using(pool.connect(), conn => {
             conn.queryAsync(stmt).then(count => {
@@ -247,29 +251,33 @@ var countInfo = function(req,res) {
                    
                     var indate = req.body.vueDate;
                     console.log('vue에서 받은 오늘 날짜:'+ indate);
-                    var dbdate = count[0].updated_at;
+                    var dbdate = count[0][0].updated_at;
+
                     var inputDate = dbdate.toISOString().substr(0, 10);
 
                     console.log('DB에서 가져온 마지막 날짜 :'+ dbdate);
                     console.log('DB에서 가져온 마지막 날짜 변환 :'+ inputDate);
+
+                    console.log('DB에서 가져온 마지막 날짜 변환 :'+ count[0][0].today_visit  + count[0][0].total_visit);
                     
                     //조회날짜와 DB날짜가 같다면 (조회시점이 오늘이라면)
                     if (indate === inputDate) {
                         //같은 날짜라면 오늘 방문자수 +1 
-                        var today_count = count[0].today_count + 1;
-                        var total_count = count[0].total_count + 1;
+                        var today_visit = count[0][0].today_visit + 1;
+                        var total_visit = count[0][0].total_visit + 1;
                         // console.log("같은날짜 today_count : [" + today_count + "] total_count : [" + total_count + "]");
                     } else {
                         //다른날짜면 오늘방문자수 = 0에서 시작
-                        var today_count = 1;
-                        var total_count = count[0].total_count + 1;
+                        var today_visit = 1;
+                        var total_visit = count[0][0].total_visit + 1;
                         // console.log("다른날짜 0에서 시작 today_count : [" + today_count + "] total_count : [" + total_count + "]");
                     }
 
                     //var uDate = new Date();
                     // console.log('uDate: '+uDate);
-                    var options = { userid: req.body.userid,"today_count": today_count, "total_count": total_count }
 
+                    var options = { userid: req.body.userid,"today_visit": today_visit, "total_visit": total_visit };
+ 
                     //방문자수 업데이트 
                     var stmt = mapper.getStatement('userInfo', 'updateInfo', options, {language:'sql', indent: '  '});
                     console.log(stmt);
@@ -290,9 +298,9 @@ var countInfo = function(req,res) {
                     //사용자설정 화면에서 CALL
                 } else if (req.body.gubun == 2) {
                     //카운트만 가져오기
-                    var today_count = count[0].today_count;
-                    var total_count = count[0].total_count;
-                    res.json({ success: true, message: "OK", dayCount: today_count, totalCount: total_count });
+                    var today_visit = count[0][0].today_visit;
+                    var total_visit = count[0][0].total_visit;
+                    res.json({ success: true, message: "OK", dayCount: today_visit, totalCount: total_visit });
                     res.end();
                 };
                 //결과값(count)가 없음   
@@ -301,7 +309,7 @@ var countInfo = function(req,res) {
                 res.end();
             };
         }).catch(err => {
-            console.log("Update.... FAIL " + err);
+            console.log("countInfo.... FAIL " + err);
             res.json({ success: false, message: "FAIL" });
             res.end();
         });

@@ -26,7 +26,7 @@
 </update>    
 <select id="getVisitCount" >
     <![CDATA[
-        select today_count,total_count from  
+        select count(1) ,today_visit ,total_visit ,updated_at from  
         users 
         WHERE userid =  #{userid}  and password = #{password}
     ]]>	
@@ -35,7 +35,7 @@
 
 <update id="updateInfo" >
     <![CDATA[
-    update users set total_visit = #{total_visit} , today_visit =#{totatoday_visitl_visit} , last_visitday = now()
+    update users set total_visit = #{total_visit} , today_visit =#{today_visit} , last_visitday = now() ,updated_at=now()
     where userid =  #{userid}     
     ]]>	
 </update>    

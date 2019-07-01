@@ -79,7 +79,7 @@ export default {
             }).then(function(response) {
                 vm.clearForm();
                 if(response.data.success == true) {
-                    // console.log(response.data);
+                    console.log(response.data);
                     var userid = response.data.userid;
                     vm.$store.commit(Constant.ADD_USER, {
                     userid: response.data.userid, 
@@ -101,6 +101,7 @@ export default {
                             }//market_gubun9:response.data.market_gubun9
                     });
                     var user_level = response.data.user_level;
+                     console.log("user" + user_level);
                     //관리자와 일반유저 구분
                     if(user_level==="admin"){
                         vm.$router.push({

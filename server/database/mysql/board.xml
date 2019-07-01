@@ -18,7 +18,7 @@
             <![CDATA[ and contents like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
         </if>
     </if>
-    order by story_id asc  limit  ${startPage} ,  ${limitPage}  
+    order by story_id desc  limit  ${startPage} ,  ${limitPage}  
 </select>
 <select id="getMaxStoryId" >
   <![CDATA[
@@ -31,9 +31,7 @@
       insert  
         into boards
           ( 
-              comp_name
-              ,comp_no
-              ,bbs_id
+              bbs_id
               ,contents
               ,created_at
               ,display
@@ -46,9 +44,7 @@
           )
       values
           ( 
-              #{comp_name}
-              ,#{comp_no}
-              ,#{bbs_id}
+              #{bbs_id}
               ,#{contents}
               ,now()
               ,'1'
@@ -64,9 +60,7 @@
 <update id="updateStory" >
   <![CDATA[
       update boards
-         set  comp_name       =     #{comp_name}
-              ,comp_no        =     #{comp_no}
-              ,contents       =     #{contents} 
+         set  contents       =     #{contents} 
               ,notice         =     #{notice}
               ,title          =     #{title}
               ,updated_at     =     now()
@@ -93,7 +87,6 @@
   <![CDATA[
       select * from boards
       where bbs_id =  '2' 
-      and comp_no  = #{comp_no}
       and notice = '1'
       order by updated_at desc limit 1 
   ]]>	

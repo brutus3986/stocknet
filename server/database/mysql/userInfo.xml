@@ -51,6 +51,44 @@
     where userid =  #{userid}     
     ]]>	
 </update>   
+<select id="getUserByGubun" >
+    <![CDATA[
+        select userid,name ,cable_name from  
+        users 
+        WHERE  1=1
+     ]]>	    
+         <if test="gubun2 == 1 ">
+            <choose>        
+                <when test ="gubun3 == 0 ">
+                <![CDATA[
+                    and   (route_gubun1 =  #{route_gubun1}  or  route_gubun2 =  #{route_gubun2} or  route_gubun3 =  #{route_gubun3} or route_gubun4 =  #{route_gubun4})
+                    and   user_level =   #{user_level}
+                ]]>	
+                </when>
+                <otherwise>
+                 <![CDATA[
+                    and route_gubun3 =  #{route_gubun3}
+                ]]>	
+                </otherwise>        
+            </choose>
+        </if> 
+        <if test="gubun2 == 2 ">
+            <choose>        
+                <when test ="gubun3 == 0 ">
+                 <![CDATA[
+                    and   (market_gubun1 =  #{market_gubun1}  or  market_gubun2 =  #{market_gubun2} or  market_gubun3 =  #{market_gubun3} or market_gubun4 =  #{market_gubun4} or market_gubun5 =  #{market_gubun5} or market_gubun6 =  #{market_gubun6} or market_gubun7 =  #{market_gubun7})
+                    and   user_level =   #{user_level}
+                ]]>	
+                </when>
+                <otherwise>
+                 <![CDATA[
+                     and  market_gubun3 =  #{market_gubun3}
+                ]]>	
+                </otherwise>        
+            </choose>
+        </if> 
+        
+</select>
 
 
 

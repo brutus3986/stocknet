@@ -45,6 +45,7 @@ var route_loader = require('./routes/route_loader');
 var app = express();
 app.set("pool", pool);
 app.set("mapper", pool.getMapper());
+//app.set("stmt", pool.getStmts());
 
 //===== 서버 변수 설정 및 static으로 public 폴더 설정  =====//
 console.log('config.server_port : %d', config.server_port);

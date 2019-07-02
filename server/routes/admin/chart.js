@@ -4,57 +4,66 @@
  * @date 2018-04-05
  * @author shjinji
  */
+var Promise = require("bluebird");
+var async = require('async');
+
 var getUserList = function(req, res) {
     console.log('/chart/getUserList 호출됨.');
 
     var gubun2 = req.body.gubun2; // 대분류
     var gubun3 = req.body.gubun3; // 중분류
+ 
     var tick = 0;
     try{
         var pool = req.app.get("pool");
         var mapper = req.app.get("mapper");
-         var options = {};
-        // gubun2 = 대분류 0: 전체, 1: 주문 , 2: 시세 , 3: PB
+        var options = {};
+         // gubun2 = 대분류 0: 전체, 1: 주문 , 2: 시세 , 3: PB
         if (gubun2 == 1) { //주문 선택
             var tick = 1;
             if (gubun3 == 0) { //중분류 전체 (주문전체, 시세전체)
-                options["$or"] = [{ "route_gubun1": true },
-                    { "route_gubun2": true },
-                    { "route_gubun3": true },
-                    { "route_gubun4": true }
-                ];
+                options= { 
+                     "route_gubun1": true ,
+                     "route_gubun2": true ,
+                     "route_gubun3": true ,
+                     "route_gubun4": true 
+                };
             } else {
-                options["route_gubun" + gubun3] = true;
+                options={ "route_gubun3" : true} ;
             }
 
         } else if (gubun2 == 2) { //시세 선택
             var tick = 1;
             if (gubun3 == 0) {
-                options["$or"] = [{ "market_gubun1": true },
-                    { "market_gubun2": true },
-                    { "market_gubun3": true },
-                    { "market_gubun4": true },
-                    { "market_gubun5": true },
-                    { "market_gubun6": true },
-                    { "market_gubun7": true },
-                    { "market_gubun8": true }
-                ];
+                options= { "market_gubun1": true ,
+                     "market_gubun2": true ,
+                     "market_gubun3": true ,
+                     "market_gubun4": true ,
+                     "market_gubun5": true ,
+                     "market_gubun6": true ,
+                     "market_gubun7": true ,
+                     "market_gubun8": true 
+                };
             } else {
-                options["market_gubun" + gubun3] = true;
+                options={"market_gubun3": true};
             }
         } else if (gubun2 == 3) { //PB 선택
             var tick = 2;
         } else {
 
         }
+
         if (tick == 1) { //주문과 시세면..
-            options["user_level"] = "normal";
+            options.user_level = "normal";
+            options.gubun2 = gubun2 ;
+            options.gubun3 = gubun3 ;
+            console.log('gubun.:' + JSON.stringify(options) );
             var stmt = mapper.getStatement('userInfo', 'getUserByGubun', options, {language:'sql', indent: '  '});
-            console.log(stmt);
+             console.log(stmt);
             Promise.using(pool.connect(), conn => {
                 conn.queryAsync(stmt).then(results => {
-                    console.log('유저리스트..'+results)
-                    var resBody = { "userlist": results };
+                   // console.log('유저리스트..'+ JSON.stringify(results));
+                    var resBody = { "userlist": results[0] };
                     succSend(res, resBody);
                  }).catch(err => {
                     console.log("getUserByGubun.... error " + err);
@@ -69,12 +78,12 @@ var getUserList = function(req, res) {
             // });
         } else {
             // PB는 회원 권한 체크 없음.
-            var stmt = mapper.getStatement('userInfo', 'findPBUSerbyChart', options, {language:'sql', indent: '  '});
+            var stmt = mapper.getStatement('pbcables', 'findPBUSerbyChart', options, {language:'sql', indent: '  '});
             console.log(stmt);
             Promise.using(pool.connect(), conn => {
                 conn.queryAsync(stmt).then(results => {
-                    console.log('pb유저리스트..'+results);
-                    var resBody = { "userlist": results };
+                   // console.log('pb유저리스트..'+results[0]);
+                    var resBody = { "userlist": results[0] };
                     succSend(res, resBody);
                  }).catch(err => {
                     console.log("getUserByGubun.... error " + err);
@@ -89,6 +98,7 @@ var getUserList = function(req, res) {
             // });
         }
     } catch(exception) {
+        console.log(exception);
         errSend(res, "DB connection Error");
     }
 };

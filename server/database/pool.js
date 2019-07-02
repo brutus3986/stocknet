@@ -46,11 +46,11 @@ module.exports = class {
                 util.log("ERR pool ending!!");
         }); 
     }
-
-
+ 
     getMapper() {
         ibatisMapper.createMapper(['./database/mysql/userInfo.xml']);
         ibatisMapper.createMapper(['./database/mysql/board.xml']);
+        ibatisMapper.createMapper(['./database/mysql/pbcables.xml']);
         return ibatisMapper;
     }
 };

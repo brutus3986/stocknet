@@ -9,6 +9,19 @@
         pbcables 
     ]]>	
 </select>
+<select id="countPBuser" >
+    <![CDATA[
+        select count(name) count from  pbcables  
+        
+    ]]>	
+</select>
+<select id="findPBuser" >
+    <![CDATA[
+        select *   from   pbcables 
+        pbcables 
+    ]]>
+    order by name  limit  ${startPage} ,  ${limitPage}  	
+</select>
 
 
 

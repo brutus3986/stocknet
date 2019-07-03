@@ -237,14 +237,15 @@ var countInfo = function(req,res) {
     try {
         var pool = req.app.get("pool");
         var mapper = req.app.get("mapper");
-        var options = {userid: req.body.userid, password: req.body.password};
+         var options = {userid: req.body.userid, password: req.body.password};
         //카운트 조회
-        var stmt = mapper.getStatement('userInfo', 'getVisitCount', options, {language:'sql', indent: '  '});
+         var stmt = mapper.getStatement('userInfo', 'getVisitCount', options, {language:'sql', indent: '  '});
         console.log(stmt);
         Promise.using(pool.connect(), conn => {
             conn.queryAsync(stmt).then(count => {
+
         //database.CountModel.getVisitCount(function(err, count) {
-            if (count) {
+            if (count[0][0].count > 0 ) {
                 //이 함수는 로그인 모듈(gubun==1)과 사용자설정화면(gubun==2)에서 같이 쓰기 때문에 구분함
                 //로그인 모듈에서는 로그인 후 방문자수 업데이트
                 if (req.body.gubun == 1) {
@@ -279,6 +280,7 @@ var countInfo = function(req,res) {
                     var options = { userid: req.body.userid,"today_visit": today_visit, "total_visit": total_visit };
  
                     //방문자수 업데이트 
+                    console.log("loginoption" + JSON.stringify(options))
                     var stmt = mapper.getStatement('userInfo', 'updateInfo', options, {language:'sql', indent: '  '});
                     console.log(stmt);
                     Promise.using(pool.connect(), conn => {
@@ -288,6 +290,7 @@ var countInfo = function(req,res) {
                             console.log("countInfo Update.... FAIL " + err);
                         });
                     });
+                    
                     // database.CountModel.updateCountInfo(options, function(err) {
                     //     if (err) {
                     //         console.log("UpdateCountInfo.... FAIL " + err);
@@ -298,9 +301,10 @@ var countInfo = function(req,res) {
                     //사용자설정 화면에서 CALL
                 } else if (req.body.gubun == 2) {
                     //카운트만 가져오기
+
                     var today_visit = count[0][0].today_visit;
                     var total_visit = count[0][0].total_visit;
-                    res.json({ success: true, message: "OK", dayCount: today_visit, totalCount: total_visit });
+                     res.json({ success: true, message: "OK", dayCount: today_visit, totalCount: total_visit });
                     res.end();
                 };
                 //결과값(count)가 없음   
@@ -318,7 +322,7 @@ var countInfo = function(req,res) {
 
         //database.db 데이터베이스 connection ERROR
     } catch(exception) {
-        console.log("countInfo " + err);
+        console.log("countInfo " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }

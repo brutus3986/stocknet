@@ -246,12 +246,12 @@ export default {
             if(td_month < 10) td_month = "0" + td_month ;
             if(td_date < 10) td_date = "0" + td_date ;
             var indate = td_year +'-'+ td_month +'-'+ td_date ;
-
-            axios.post(Config.base_url+'/updatevisitcount',{
+             axios.post(Config.base_url+'/updatevisitcount',{
                     vueDate : indate,
-                    gubun   : 2   //사용자설정 화면 구분 : 2 , 로그인 후 업데이트 구분 : 1
+                    gubun   : 2   ,//사용자설정 화면 구분 : 2 , 로그인 후 업데이트 구분 : 1
+                    userid  : this.$store.state.user.userid
             }).then(function(response){
-                // console.log(response);
+                 console.log(response.data.dayCount);
                 vm.today_count = response.data.dayCount;
                 vm.total_count = response.data.totalCount;
             });
@@ -325,6 +325,7 @@ export default {
             console.log("showInfo");
             this.modalgubun = 2;    // 신규 1, 수정 2
             this.showModal  = true;
+            console.log("tttt" + user.userid ) ;
             this.userinfo.userid        = user.userid;              // 사용자계정
             this.userinfo.oldId         = user.userid;              // userid 변경시 원래의 userid
             this.userinfo.name          = user.name;                // 고객명

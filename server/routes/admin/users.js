@@ -4,22 +4,22 @@
  * @date 2018-04-05
  * @author shjinji
  */
+var Promise = require("bluebird");
+var async = require('async');
 
 
 //사용자설정 메뉴의 고객사 리스트 가져오기
 var userList = function(req, res) {
-    console.log('/users/userList 패스 요청됨.');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
+    console.log('/user/userList 패스 요청됨.');
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
         var options = {
-            "criteria": { bbs_id: req.query.bbs_id },
             "perPage": req.query.perPage,
-            "curPage": req.query.curPage
+            "curPage": req.query.curPage,
+            "seloption": req.query.seloption,
+            "searchinfo": req.query.searchinfo
         };
-
         if(req.query.searchinfo != '') {
             console.log('*******************');
             console.log(req.query.searchinfo)
@@ -32,104 +32,126 @@ var userList = function(req, res) {
                 options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { name : {$regex : sinfo, $options:"i" }} ] };
             }
         }
-        
-        console.log(JSON.stringify(options));
-        database.UserModel.countByBbsId(options, function(err, count) {
-            console.log(count);
-            if (err) {
-                console.dir(err);
-                res.json({ success: false, message: err });
-                res.end();
-            } else if (count) {
-                database.UserModel.findAll(options, function(err, results) {
-                    var totalPage = Math.ceil(count / req.query.perPage);
-                    // console.log("count : " + count + " totalPage : " + totalPage) ;
-                    var pageInfo = {
-                        "totalPage": totalPage,
+        var stmt = mapper.getStatement('userInfo', 'countByBbsId', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(rows => {
+                var startPage = req.query.perPage  * (req.query.curPage -1) ;
+                var userCnt = rows[0][0]['userCnt'] ;
+                if(userCnt > 0) {
+                    var options = {
                         "perPage": req.query.perPage,
-                        "curPage": req.query.curPage
+                        "curPage": req.query.curPage,
+                        "seloption": req.query.seloption,
+                        "searchinfo": req.query.searchinfo,
+                        "startPage" : startPage,
+                        "limitPage" : req.query.perPage
                     };
-                    var resBody = { "pageInfo": pageInfo, "userslist": results };
-
-                    res.json(resBody);
-                    res.end();
-                });
-            } else {
-                res.json({ success: false, message: "No Data" });
-                res.end();
-            }
+                    try {
+                        var stmt = mapper.getStatement('userInfo', 'findAll', options, {language:'sql', indent: '  '});
+                        console.log(stmt);
+                        Promise.using(pool.connect(), conn => {
+                            conn.queryAsync(stmt).then(results => {
+                                    var totalPage = Math.ceil(userCnt / req.query.perPage);
+                                    console.log(" totalPage : " + totalPage) ;
+                                    var pageInfo = {
+                                        "totalPage" : totalPage,
+                                        "perPage"   : req.query.perPage,
+                                        "curPage"   : req.query.curPage,
+                                     };
+                                    var resBody = { "pageInfo": pageInfo, "userslist": results[0] };
+                                    //console.log("resbody" + JSON.stringify(resBody));
+                                    res.json(resBody);
+                                    res.end();
+                            }).catch(err => {
+                                console.log("getUserList.. FAIL");
+                                res.json({ success: false, message: "No Data" });
+                                res.end();
+                            });
+                        });
+                    } catch(exception) {
+                        console.log("getUserList....... FAIL"+exception ) ;
+                        res.json({ success: false, message: "FAIL" });
+                        res.end();
+                    }//회원
+                }else {
+                     res.json({ success: false, message: "No Data" });
+                     res.end();
+                }                
+            }).catch(err => {
+            res.json({ success: false, message: err });
+            res.end();
+            });
         });
-    } else {
+    } catch(exception) {
+        console.log("userList " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
-
 };
 
-//신규사용자 중복확인
 var useridcheck = function(req, res) {
-    console.log('/users/useridcheck 패스 요청됨 ');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-
-        var userid = req.body.userid;
-        
-        database.UserModel.findByUserId(userid, function(err, user) {
-            if (err) {
-                console.dir(err);
-                res.json({ success: false, message: err });
-                res.end();
-            } else if (user) {
-                console.log(user);
-                if (user[0] == null) {
+    console.log('/user/useridCheck 패스 요청됨');
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
+        var options = {"userid": req.body.userid};
+        var stmt = mapper.getStatement('userInfo', 'getUserId', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(user => {
+                if (user[0]== null || user[0] == '') {
+                    console.log("사용가능한 ID..1");
                     res.json({ success: false, message: "No ID" });
                     res.end();
                 } else {
+                    console.log("존재하는 ID..");
                     res.json({ success: true, message: "HAS ID" });
                     res.end();
-                }
-            } else {
-                res.json({ success: false, message: "No ID" });
+                }                
+             }).catch(err => {
+                console.log(err);
+                res.json({ success: false, message: err });
                 res.end();
-            }
+            });
         });
-
-    } else {
+    } catch(exception) {
+        console.log("useridCheck " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
-}
+};
 
 
 //신규사용자 등록
 var insertInfo = function(req, res) {
     console.log('/users/insertinfo 패스 요청됨 ');
 
-    var database = req.app.get('database');
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
 
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-
+ 
         var bbs_id = req.body.bbs_id;
         var userinfo = req.body.userinfo;
-        var options = { "criteria": { "bbs_id": bbs_id }, "userinfo": userinfo };
-        
-        var UM = new database.UserModel(options.userinfo);
-        UM.insertInfo(function(err, result) {
-            if (err) {
+        var options = { "bbs_id": bbs_id , "userinfo": userinfo };
+
+        var stmt = mapper.getStatement('userInfo', 'insertUser', options.userinfo, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(result => {
+                console.log("Insert.... OK");
+                console.log(result);
+                res.json({ success: true, message: "OK" });
+                res.end();
+             }).catch(err => {
                 console.log("Insert.... FAIL");
                 res.json({ success: false, message: "FAIL" });
                 res.end();
-            } else {
-                console.log("Insert.... OK");
-                res.json({ success: true, message: "OK" });
-                res.end();
-            }
+            });
         });
-    } else {
+   } catch(exception) {
+        console.log("Insert " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -271,20 +293,25 @@ var confirmPwd = function(req, res) {
 //사용자설정 조회장비명 가져오기
 var getCableList = function(req, res) {
     console.log('/users/getCableList 패스 요청됨.');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-        var user_level = 'normal'; //
-        database.UserModel.findCableName(user_level, function(err, results) {
-
-            var resBody = { "cablelist": results };
-    
-            res.json(resBody);
-            res.end();
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
+        var options = {user_level : 'normal'} ;
+        var stmt = mapper.getStatement('userInfo', 'findCableName', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(results => {
+                var resBody = { "cablelist": results[0] };
+                res.json(resBody);
+                res.end();
+             }).catch(err => {
+                console.log("cablelist.... FAIL" + err);
+                res.json({ success: false, message: "FAIL" });
+                res.end();
+            });
         });
-    } else {
+    } catch(exception) {
+        console.log("getCableList " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -293,42 +320,48 @@ var getCableList = function(req, res) {
 
 var getPBUserList = function(req, res) {
     console.log('/users/getPBUserList 패스 요청됨.');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
+        var startPage = req.query.perPage  * (req.query.curPage -1) ;
         var options = {
             "perPage": req.query.perPage,
-            "curPage": req.query.curPage
+            "curPage": req.query.curPage,
+            "startPage" : startPage,
+            "limitPage" : req.query.perPage
         };
-
-        database.PBCableModel.countPBuser(function(err, count) {
-            if (err) {
+        var stmt = mapper.getStatement('pbcables', 'countPBuser', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(count => {
+            
+                var stmt = mapper.getStatement('pbcables', 'findPBuser', options, {language:'sql', indent: '  '});              
+                Promise.using(pool.connect(), conn => {
+                    conn.queryAsync(stmt).then(results => {
+                        var totalPage = Math.ceil(count[0][0].count / req.query.perPage);
+                        console.log("\n PBUSER count : " + count[0] + " totalPage : " + totalPage);
+                        var pageInfo = {
+                            "totalPage": totalPage,
+                            "perPage": req.query.perPage,
+                            "curPage": req.query.curPage
+                        };
+                        var resBody = { "pageInfo": pageInfo, "pbuserinfo": results[0] };
+                        res.json(resBody);
+                        res.end();
+                     }).catch(err => {
+                        console.log("getPBUserList.... FAIL"+ err);
+                        res.json({ success: false, message: "FAIL" });
+                        res.end();
+                    });
+                });
+             }).catch(err => {
                 console.dir(err);
                 res.json({ success: false, message: err });
                 res.end();
-            } else if (count) {
-                database.PBCableModel.findPBuser(options, function(err, results) {
-                    var totalPage = Math.ceil(count / req.query.perPage);
-                    console.log("\n PBUSER count : " + count + " totalPage : " + totalPage);
-                    var pageInfo = {
-                        "totalPage": totalPage,
-                        "perPage": req.query.perPage,
-                        "curPage": req.query.curPage
-                    };
-                    var resBody = { "pageInfo": pageInfo, "pbuserinfo": results };
-                    res.json(resBody);
-                    res.end();
-                });
-            } else {
-                res.json({ success: false, message: "No Data" });
-                res.end();
-            }
+            });
         });
-
-    } else {
+    } catch(exception) {
+        console.log("getPBUserList " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }

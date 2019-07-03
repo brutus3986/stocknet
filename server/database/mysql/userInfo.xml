@@ -26,9 +26,9 @@
 </update>    
 <select id="getVisitCount" >
     <![CDATA[
-        select count(1) ,today_visit ,total_visit ,updated_at from  
+        select count(1) count ,today_visit ,total_visit ,updated_at from  
         users 
-        WHERE userid =  #{userid}  and password = #{password}
+        WHERE userid =  #{userid}  
     ]]>	
 </select>
 
@@ -91,32 +91,7 @@
 </select>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<select id="countAllUser" >
+<select id="countByBbsId" >
     <![CDATA[
         select count(1)  userCnt from   users 
     ]]>	
@@ -135,7 +110,7 @@
     </where>
 </select>
 
-<select id="getUserList" >
+<select id="findAll" >
     <![CDATA[
         select * from   users  
     ]]>	
@@ -178,45 +153,85 @@
   <![CDATA[
       insert  
         into users
-          (              
-              userid
-              ,comp_name
-              ,comp_no
-              ,created_at
-              ,email
-              ,endtime
-              ,hashed_password
-              ,ipaddr
-              ,last_visitday
-              ,name 
-              ,password
-              ,phonenumber
-              ,starttime
-              ,user_level 
-              ,updated_at
-              ,today_visit
-              ,total_visit
- 
-          )
+          (             
+            userid          ,  
+            bbs_id          ,
+            cable_name      ,
+            created_at      ,
+            email           ,
+            endtime         ,
+            grpcode         ,
+            hashed_password ,
+            ipaddr          ,
+            last_visitday   ,
+            lockyn          ,
+            loginfailcount  ,
+            machine_name    ,
+            market_gubun1   ,
+            market_gubun2   ,
+            market_gubun3   ,
+            market_gubun4   ,
+            market_gubun5   ,
+            market_gubun6   ,
+            market_gubun7   ,
+            market_gubun8   ,
+            name            ,
+            password        ,
+            pb_gubun1       ,
+            pb_gubun2       ,
+            pb_gubun3       ,
+            phone           ,
+            phonenumber     ,
+            route_gubun1    ,
+            route_gubun2    ,
+            route_gubun3    ,
+            route_gubun4    ,
+            salt            ,
+            starttime       ,
+            today_visit     ,
+            total_visit     ,
+            user_level      ,
+
       values
           ( 
-              #{userid}
-              ,#{comp_name}
-              ,#{comp_no}
-              ,now()
-              ,#{email}
-              ,#{endtime}
-              ,#{hashed_password}
-              ,#{ipaddr}
-              ,now()
-              ,#{name}
-              ,#{password}
-              ,#{phonenumber}
-              ,#{starttime}
-              ,#{user_level}
-              ,now()
-              ,0
-              ,0
+            #{userid}          ,
+            #{bbs_id}          ,
+            #{cable_name}      ,
+            now()      ,
+            #{email}           ,
+            #{endtime}         ,
+            #{grpcode}         ,
+            #{hashed_password} ,
+            #{ipaddr}          ,
+            now()  ,
+            0      ,
+            0      ,
+            #{machine_name}    ,
+            #{market_gubun1}   ,
+            #{market_gubun2}   ,
+            #{market_gubun3}   ,
+            #{market_gubun4}   ,
+            #{market_gubun5}   ,
+            #{market_gubun6}   ,
+            #{market_gubun7}   ,
+            #{market_gubun8}   ,
+            #{name}            ,
+            #{password}        ,
+            #{pb_gubun1}       ,
+            #{pb_gubun2}       ,
+            #{pb_gubun3}       ,
+            #{phone}           ,
+            #{phonenumber}     ,
+            #{route_gubun1}    ,
+            #{route_gubun2}    ,
+            #{route_gubun3}    ,
+            #{route_gubun4}    ,
+            #{salt}            ,
+            #{starttime}       ,
+            0     ,
+            0     ,
+            #{user_level}      ,
+
           )
   ]]>	
 </insert>
@@ -242,5 +257,13 @@
       delete from  users
       where   userid            =     #{userid}
   ]]>
-</delete>	
+</delete>
+<select id="findCableName" >
+    <![CDATA[
+        select name,cable_name from users
+        where user_level = #{user_level}
+        order by name      
+    ]]>	
+</select>
+
 </mapper>

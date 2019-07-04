@@ -164,11 +164,10 @@ export default {
             
             axios.get(Config.base_url+'/users/userlist',{
                 params: {
-                    "bbs_id" : this.bbs_id,
-                    "seloption" : this.seloption,
-                    "searchinfo" : this.searchinfo,
-                    "curPage": this.curPage,
-                    "perPage": this.perPage
+                    "seloption" : vm.seloption,
+                    "searchinfo" : vm.searchinfo,
+                    "curPage": vm.curPage,
+                    "perPage": vm.perPage
                 }
             }).then(function(response){
                 // console.log(response);
@@ -266,8 +265,9 @@ export default {
             var vm = this;
             vm.resetCountModal = false;
             
-            axios.post(Config.base_url+'/resetcount'
-            ).then(function(response){
+            axios.post(Config.base_url+'/resetcount',{
+                userid  : this.$store.state.user.userid
+            }).then(function(response){
                 // console.log(response);
                 vm.getVisitCount();
             });
@@ -296,20 +296,20 @@ export default {
                 "endtime"        : 18,
                 "conntime"       :"",
                 "user_level"     : "normal",
-                "lockyn"         : false,
+                "lockyn"         : 0,
                 "loginfailcount" : 0,
-                "route_gubun1"   : true,     // 서울현물
-                "route_gubun2"   : true,     // 서울파생
-                "route_gubun3"   : true,     // 부산파생
-                "route_gubun4"   : true,     // 주문테스트
-                "market_gubun1"  : true,     // 유가
-                "market_gubun2"  : true,     // 코스닥
-                "market_gubun3"  : true,     // ELW
-                "market_gubun4"  : true,     // 채권
-                "market_gubun5"  : true,     // 지수옵션
-                "market_gubun6"  : true,     // 선물
-                "market_gubun7"  : true,     // 부산파생시세
-                "market_gubun8"  : true,     // 시세테스트
+                "route_gubun1"   : 1,     // 서울현물
+                "route_gubun2"   : 1,     // 서울파생
+                "route_gubun3"   : 1,     // 부산파생
+                "route_gubun4"   : 1,     // 주문테스트
+                "market_gubun1"  : 1,     // 유가
+                "market_gubun2"  : 1,     // 코스닥
+                "market_gubun3"  : 1,     // ELW
+                "market_gubun4"  : 1,     // 채권
+                "market_gubun5"  : 1,     // 지수옵션
+                "market_gubun6"  : 1,     // 선물
+                "market_gubun7"  : 1,     // 부산파생시세
+                "market_gubun8"  : 1,     // 시세테스트
             };
         },
         addUsers : function(){
@@ -325,7 +325,6 @@ export default {
             console.log("showInfo");
             this.modalgubun = 2;    // 신규 1, 수정 2
             this.showModal  = true;
-            console.log("tttt" + user.userid ) ;
             this.userinfo.userid        = user.userid;              // 사용자계정
             this.userinfo.oldId         = user.userid;              // userid 변경시 원래의 userid
             this.userinfo.name          = user.name;                // 고객명
@@ -430,7 +429,7 @@ export default {
         },
         updateInfo: function(userinfo) {
             console.log('updateInfo');
-            if(userinfo.password===''){
+             if(userinfo.password===''){
                 this.userinfo.password = userinfo.oldpassword;
             }else{
                 this.userinfo.password = userinfo.password;

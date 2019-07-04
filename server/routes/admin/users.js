@@ -20,18 +20,7 @@ var userList = function(req, res) {
             "seloption": req.query.seloption,
             "searchinfo": req.query.searchinfo
         };
-        if(req.query.searchinfo != '') {
-            console.log('*******************');
-            console.log(req.query.searchinfo)
-            console.log('*******************');
-
-            var sinfo = '.*' + req.query.searchinfo + '*.';
-            if(req.query.seloption == 'userid') {
-                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { userid : {$regex : sinfo, $options:"i" }} ] };
-            }else {
-                options.criteria = { $and: [ { bbs_id: req.query.bbs_id }, { name : {$regex : sinfo, $options:"i" }} ] };
-            }
-        }
+        console.log("option" + JSON.stringify(options));
         var stmt = mapper.getStatement('userInfo', 'countByBbsId', options, {language:'sql', indent: '  '});
         console.log(stmt);
         Promise.using(pool.connect(), conn => {
@@ -130,12 +119,22 @@ var insertInfo = function(req, res) {
     try {
         var pool = req.app.get("pool");
         var mapper = req.app.get("mapper");
-
- 
         var bbs_id = req.body.bbs_id;
         var userinfo = req.body.userinfo;
+        (userinfo.market_gubun1 == true)?userinfo.market_gubun1 = 1:0 ;
+        (userinfo.market_gubun2 == true)?userinfo.market_gubun2 = 1:0 ;
+        (userinfo.market_gubun3 == true)?userinfo.market_gubun3 = 1:0 ;
+        (userinfo.market_gubun4 == true)?userinfo.market_gubun4 = 1:0 ;
+        (userinfo.market_gubun5 == true)?userinfo.market_gubun5 = 1:0 ;
+        (userinfo.market_gubun6 == true)?userinfo.market_gubun6 = 1:0 ;
+        (userinfo.market_gubun7 == true)?userinfo.market_gubun7 = 1:0 ;
+        (userinfo.market_gubun8 == true)?userinfo.market_gubun8 = 1:0 ;
+        (userinfo.route_gubun1 == true)?userinfo.route_gubun1 = 1:0 ; 
+        (userinfo.route_gubun2 == true)?userinfo.route_gubun2 = 1:0 ; 
+        (userinfo.route_gubun3 == true)?userinfo.route_gubun3 = 1:0 ; 
+        (userinfo.route_gubun4 == true)?userinfo.route_gubun4 = 1:0 ; 
         var options = { "bbs_id": bbs_id , "userinfo": userinfo };
-
+        console.log("stmt" + JSON.stringify(options));
         var stmt = mapper.getStatement('userInfo', 'insertUser', options.userinfo, {language:'sql', indent: '  '});
         console.log(stmt);
         Promise.using(pool.connect(), conn => {
@@ -162,30 +161,44 @@ var insertInfo = function(req, res) {
 //사용자정보 수정
 var updateInfo = function(req, res) {
     console.log('/users/updateinfo 패스 요청됨');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
         var bbs_id = req.body.bbs_id;
         var userinfo = req.body.userinfo;
-        var options = { "criteria": { "bbs_id": bbs_id, "userid": userinfo.oldId }, "userinfo": userinfo };
-
-        database.UserModel.updateInfo(options, function(err) {
-            if (err) {
-                console.log("Update.... FAIL " + err);
-                res.json({ success: false, message: "FAIL" });
-                res.end();
-            } else {
+        (userinfo.market_gubun1 == true)?userinfo.market_gubun1 = 1:0 ;
+        (userinfo.market_gubun2 == true)?userinfo.market_gubun2 = 1:0 ;
+        (userinfo.market_gubun3 == true)?userinfo.market_gubun3 = 1:0 ;
+        (userinfo.market_gubun4 == true)?userinfo.market_gubun4 = 1:0 ;
+        (userinfo.market_gubun5 == true)?userinfo.market_gubun5 = 1:0 ;
+        (userinfo.market_gubun6 == true)?userinfo.market_gubun6 = 1:0 ;
+        (userinfo.market_gubun7 == true)?userinfo.market_gubun7 = 1:0 ;
+        (userinfo.market_gubun8 == true)?userinfo.market_gubun8 = 1:0 ;
+        (userinfo.route_gubun1 == true)?userinfo.route_gubun1 = 1:0 ; 
+        (userinfo.route_gubun2 == true)?userinfo.route_gubun2 = 1:0 ; 
+        (userinfo.route_gubun3 == true)?userinfo.route_gubun3 = 1:0 ; 
+        (userinfo.route_gubun4 == true)?userinfo.route_gubun4 = 1:0 ; 
+        var options = { "bbs_id": bbs_id, "userid": userinfo.oldId , "userinfo": userinfo };
+        console.log("par:" + JSON.stringify(options.userinfo));
+        var stmt = mapper.getStatement('userInfo', 'updateUser', options.userinfo, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(result => {
                 console.dir("Update.... OK ");
                 res.json({ success: true, message: "OK" });
                 res.end();
-            }
+             }).catch(err => {
+                console.log("Update.... FAIL " + err);
+                res.json({ success: false, message: "FAIL" });
+                res.end();
+            });
         });
-    } else {
+    } catch(exception) {
+        console.log("updateInfo " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
+
 
 };
 
@@ -193,25 +206,29 @@ var updateInfo = function(req, res) {
 //사용자 삭제
 var deleteInfo = function(req, res) {
     console.log('/users/deleteinfo 패스 요청됨.');
-
-    var database = req.app.get('database');
-    if (database.db) {
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
         var bbs_id = req.body.bbs_id;
         var userinfo = req.body.userinfo;
-        var options = { "criteria": { "bbs_id": bbs_id, "userid": userinfo.userid }, "userinfo": userinfo };
-
-        database.UserModel.deleteInfo(options, function(err) {
-            if (err) {
-                console.log("Delete.... FAIL " + err);
-                res.json({ success: false, message: "FAIL" });
-                res.end();
-            } else {
-                console.dir("Delete.... OK ");
+        var options = { "bbs_id": bbs_id, "userid": userinfo.userid , "userinfo": userinfo };
+        
+        var stmt = mapper.getStatement('userInfo', 'daleteUser', options.userinfo, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(result => {
+                console.dir("deleteInfo.... OK ");
                 res.json({ success: true, message: "OK" });
                 res.end();
-            }
+             }).catch(err => {
+                console.log("deleteInfo.... FAIL " + err);
+                res.json({ success: false, message: "FAIL" });
+                res.end();
+            });
         });
-    } else {
+
+    } catch(exception) {
+        console.log("deleteInfo " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -221,31 +238,33 @@ var deleteInfo = function(req, res) {
 //방문자수 설정 RESET
 var resetCount = function(req, res) {
     console.log('/users/resetCount 패스 요청됨.');
-
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
+        var userid = req.body.userid;
+        console.log("biddu" + JSON.stringify(req.body) )
         //방문자수 누적수 RESET
         var today_count = 0;
         var total_count = 0;
         var uDate = new Date();
-        var options = { "today_count": today_count, "total_count": total_count, "updated_at": uDate };
-
-        //방문자수 업데이트 
-        database.CountModel.updateCountInfo(options, function(err) {
-            if (err) {
-                console.log("UpdateCountInfo.... FAIL " + err);
-                res.json({ success: false, message: "FAIL" });
-                res.end();
-            } else {
+        var options = { "userid":userid,"today_count": today_count, "total_count": total_count, "updated_at": uDate };
+        var stmt = mapper.getStatement('userInfo', 'updateCountInfo', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(result => {
                 console.dir("UpdateCountInfo.... OK ");
                 res.json({ success: true, message: "OK" });
                 res.end();
-            }
+             }).catch(err => {
+                console.log("UpdateCountInfo.... FAIL " + err);
+                res.json({ success: false, message: "FAIL" });
+                res.end();
+            });
         });
 
-    } else {
+
+    } catch(exception) {
+        console.log("resetCount " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -254,22 +273,17 @@ var resetCount = function(req, res) {
 //사용사 설정 수정/삭제 시 비밀번호 확인
 var confirmPwd = function(req, res) {
     console.log('/users/confirmPwd 패스 요청됨.');
-    
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
         var userid = req.body.userid;
         var pwd = req.body.password;
-    
-        database.UserModel.findByUserId(userid, function(err, user) {
-            if (err) {
-                console.dir(err);
-                res.json({ success: false, message: err });
-                res.end();
-            } else if (user) {
-                var dbpwd = user[0].password;
+        var options = { "userid": userid};   
+        var stmt = mapper.getStatement('userInfo', 'findByUserId', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(user => {
+                 var dbpwd = user[0][0].password;
                 if (dbpwd == pwd) {
                     // console.log('입력한 비밀번호가 DB 비번과 일치함');
                     res.json({ success: true, message: "OK" });
@@ -279,12 +293,14 @@ var confirmPwd = function(req, res) {
                     res.json({ success: false, message: "NOT CORRECT PWD" });
                     res.end();
                 }
-            } else {
-                res.json({ success: false, message: "No Data" });
+             }).catch(err => {
+                console.dir(err);
+                res.json({ success: false, message: err });
                 res.end();
-            }
+            });
         });
-    } else {
+    } catch(exception) {
+        console.log("/users/confirmPwd " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -339,8 +355,7 @@ var getPBUserList = function(req, res) {
                 Promise.using(pool.connect(), conn => {
                     conn.queryAsync(stmt).then(results => {
                         var totalPage = Math.ceil(count[0][0].count / req.query.perPage);
-                        console.log("\n PBUSER count : " + count[0] + " totalPage : " + totalPage);
-                        var pageInfo = {
+                           var pageInfo = {
                             "totalPage": totalPage,
                             "perPage": req.query.perPage,
                             "curPage": req.query.curPage
@@ -369,29 +384,28 @@ var getPBUserList = function(req, res) {
 
 var insertPBInfo = function(req, res) {
     console.log('/users/insertPBInfo 패스 요청됨 ');
-    var database = req.app.get('database');
-
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
 
         var name = req.body.name;
         var cable_name = req.body.cable_name;
         var options = { "name": name, "cable_name": cable_name };
-
-        var PM = new database.PBCableModel(options);
-        PM.insertPBuserInfo(function(err, result) {
-            console.log('insertInfo.............');
-            if (err) {
-                console.log("Insert.... FAIL");
-                res.json({ success: false, message: "FAIL" });
-                res.end();
-            } else {
+        var stmt = mapper.getStatement('pbcables', 'insertPBuserInfo', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(results => {
                 console.log("Insert.... OK");
                 res.json({ success: true, message: "OK" });
                 res.end();
-            }
+             }).catch(err => {
+                console.log("Insert.... FAIL");
+                res.json({ success: false, message: "FAIL" });
+                res.end();
+            });
         });
-    } else {
+    } catch(exception) {
+        console.log("insertPBInfo " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -402,22 +416,26 @@ var insertPBInfo = function(req, res) {
 var deletePBInfo = function(req, res) {
     console.log('/users/deletePBInfo 패스 요청됨 ');
 
-    var database = req.app.get('database');
-    if (database.db) {
-        var options = { "criteria": { _id: req.body._id }, "pbuserinfo": { "name": req.body.name, "cable_name": req.body.cable_name } };
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
 
-        database.PBCableModel.deletePBUserInfo(options, function(err) {
-            if (err) {
-                console.log("Delete.... FAIL " + err);
-                res.json({ success: false, message: "FAIL" });
-                res.end();
-            } else {
+        var options = { "name": req.body.name, "cable_name": req.body.cable_name  };
+        var stmt = mapper.getStatement('pbcables', 'deletePBUserInfo', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(results => {
                 console.dir("Delete.... OK ");
                 res.json({ success: true, message: "OK" });
                 res.end();
-            }
+             }).catch(err => {
+                console.log("Delete.... FAIL " + err);
+                res.json({ success: false, message: "FAIL" });
+                res.end();
+            });
         });
-    } else {
+    } catch(exception) {
+        console.log("deletePBInfo " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }
@@ -427,22 +445,27 @@ var deletePBInfo = function(req, res) {
 var failcntChange = function(req, res) {
     console.log('/admin/users/failcntChange 호출됨.');
     //console.log('로그인 fail count 0으로..');
-    var database = req.app.get('database');
-    var userid = req.query.userid; //사용자 ID
-    var lockyn = req.query.lockyn; //잠김 여부
-    var options = { "criteria": { "userid": userid }, "lockinfo": {"lockyn":lockyn, "loginfailcount": 0} };
-    // 데이터베이스 객체가 초기화된 경우
-    if (database.db) {
-        database.UserModel.failcntzero(options, function(err, user) {
-            if (err) {
+    try {
+        var pool = req.app.get("pool");
+        var mapper = req.app.get("mapper");
+        var userid = req.query.userid; //사용자 ID
+        var lockyn = req.query.lockyn; //잠김 여부
+        var options = { "userid": userid , "lockinfo": {"lockyn":lockyn, "loginfailcount": 0} };
+        var stmt = mapper.getStatement('userInfo', 'failcntzero', options, {language:'sql', indent: '  '});
+        console.log(stmt);
+        Promise.using(pool.connect(), conn => {
+            conn.queryAsync(stmt).then(results => {
+                console.log("failCount made zero.... OK");
+                res.json({ success: true, message: "OK" });
+                res.end();
+             }).catch(err => {
                 res.json({ success: false, message: err });
                 res.end();
-            } 
-            console.log("failCount made zero.... OK");
-            res.json({ success: true, message: "OK" });
-            res.end();
-        });    
-    } else {
+            });
+        });
+ 
+    } catch(exception) {
+        console.log("getPBUserList " + exception);
         res.json({ success: false, message: "DB connection Error" });
         res.end();
     }

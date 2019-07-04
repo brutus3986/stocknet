@@ -20,9 +20,33 @@
         select *   from   pbcables 
         pbcables 
     ]]>
-    order by name  limit  ${startPage} ,  ${limitPage}  	
+    order by updated_at desc   limit  ${startPage} ,  ${limitPage}  	
 </select>
-
-
+<insert id="insertPBuserInfo" >
+  <![CDATA[
+      insert  
+        into pbcables
+          (             
+            cable_name      ,  
+            created_at      ,
+            name            ,
+            updated_at      
+           )
+      values
+          ( 
+            #{cable_name}     ,
+            now()             ,
+            #{name}           ,
+            now()        
+          )
+  ]]>	
+</insert>
+<delete id="deletePBUserInfo" >
+  <![CDATA[
+    delete   from     pbcables
+    where   trim(cable_name)  =  trim(#{cable_name})
+ 
+  ]]>
+</delete>
 
 </mapper>

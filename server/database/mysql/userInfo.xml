@@ -103,16 +103,13 @@
         <if test="seloption =='userid'">
             <![CDATA[ userid like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
         </if>
-        <if test="seloption =='comp_name'">
-            <![CDATA[ comp_name like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
-        </if>
-    </if>
+     </if>
     </where>
 </select>
 
 <select id="findAll" >
     <![CDATA[
-        select * from   users  
+        select *  from   users  
     ]]>	
     <where>
     <if test="searchinfo != null and searchinfo != '' " >
@@ -121,9 +118,6 @@
         </if>
         <if test="seloption =='userid'">
             <![CDATA[ userid like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
-        </if>
-        <if test="seloption =='comp_name'">
-            <![CDATA[ comp_name like concat('%' , trim(#{searchinfo}), '%' )  ]]>	   
         </if>
     </if>
     </where>
@@ -161,7 +155,6 @@
             email           ,
             endtime         ,
             grpcode         ,
-            hashed_password ,
             ipaddr          ,
             last_visitday   ,
             lockyn          ,
@@ -186,12 +179,12 @@
             route_gubun2    ,
             route_gubun3    ,
             route_gubun4    ,
-            salt            ,
             starttime       ,
             today_visit     ,
             total_visit     ,
-            user_level      ,
-
+            updated_at      ,
+            user_level     
+           )
       values
           ( 
             #{userid}          ,
@@ -200,8 +193,7 @@
             now()      ,
             #{email}           ,
             #{endtime}         ,
-            #{grpcode}         ,
-            #{hashed_password} ,
+            '-'                ,
             #{ipaddr}          ,
             now()  ,
             0      ,
@@ -217,20 +209,20 @@
             #{market_gubun8}   ,
             #{name}            ,
             #{password}        ,
-            #{pb_gubun1}       ,
-            #{pb_gubun2}       ,
-            #{pb_gubun3}       ,
+            0       ,
+            0       ,
+            0       ,
             #{phone}           ,
             #{phonenumber}     ,
             #{route_gubun1}    ,
             #{route_gubun2}    ,
             #{route_gubun3}    ,
             #{route_gubun4}    ,
-            #{salt}            ,
             #{starttime}       ,
             0     ,
             0     ,
-            #{user_level}      ,
+            now() ,
+            #{user_level}     
 
           )
   ]]>	
@@ -238,26 +230,60 @@
 <update id="updateUser" >
   <![CDATA[
       update users
-         set   comp_name        =     #{comp_name} 
-              ,comp_no          =     #{comp_no}
-              ,updated_at       =     now()
-              ,email            =     #{email}
-              ,endtime          =     #{endtime}
-              ,ipaddr           =     #{ipaddr}
-              ,name             =     #{name}
-              ,phonenumber      =     #{phonenumber}
-              ,starttime        =     #{starttime}
-              ,user_level       =     #{user_level}
-      where   userid            =     #{userid}
+         set   
+             email             =       #{email}             ,     
+             endtime           =       #{endtime}           ,     
+             ipaddr            =       #{ipaddr}            ,    
+             last_visitday     =       now()                ,           
+             machine_name       =      #{machine_name}      , 
+             market_gubun1      =      #{market_gubun1}     , 
+             market_gubun2      =      #{market_gubun2}     , 
+             market_gubun3      =      #{market_gubun3}     , 
+             market_gubun4      =      #{market_gubun4}     , 
+             market_gubun5      =      #{market_gubun5}     , 
+             market_gubun6      =      #{market_gubun6}     , 
+             market_gubun7      =      #{market_gubun7}     , 
+             market_gubun8      =      #{market_gubun8}     , 
+             name               =      #{name}              ,
+             password           =      #{password}          ,
+             phone              =      #{phone}             ,
+             phonenumber        =      #{phonenumber}       ,
+             route_gubun1       =      #{route_gubun1}      ,
+             route_gubun2       =      #{route_gubun2}      ,
+             route_gubun3       =      #{route_gubun3}      ,
+             route_gubun4       =      #{route_gubun4}      ,
+             starttime          =      #{starttime}         ,
+             updated_at         =      now()                 ,
+             user_level         =      #{user_level}        
+      where  userid            =      #{userid}
+ 
+  ]]>
+</update>	
+<update id="updateCountInfo" >
+  <![CDATA[
+    update users
+        set  
+            today_visit     =     0 ,     
+            total_visit     =     0 ,     
+            updated_at      =      now()             
+    where   userid          =      #{userid}
 
   ]]>
 </update>	
 <delete id="daleteUser" >
   <![CDATA[
-      delete from  users
-      where   userid            =     #{userid}
+    delete   from     users
+     where   userid   =      #{userid}
+ 
   ]]>
 </delete>
+<select id="findByUserId" >
+    <![CDATA[
+     select password from users
+     where   userid   =      #{userid}
+    ]]>	
+</select>
+
 <select id="findCableName" >
     <![CDATA[
         select name,cable_name from users
@@ -265,5 +291,30 @@
         order by name      
     ]]>	
 </select>
+<update id="failcntChange" >
+  <![CDATA[
+    update users
+        set  
+            loginfailcount     =     0  ,    
+            updated_at      =      now()             
+    where   userid          =      #{userid}
+
+  ]]>
+</update>	
+<select id="getOrginPwd" >
+    <![CDATA[
+        select password from users
+        where   userid      =     #{userid}
+    ]]>	
+</select>
+<update id="changePwd" >
+  <![CDATA[
+    update users
+        set  
+            password     =   #{password}
+    where   userid       =   #{userid}
+
+  ]]>
+</update>	
 
 </mapper>

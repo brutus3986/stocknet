@@ -113,7 +113,7 @@ var checkLogin = function(req, res) {
                                             });
                                             makeSessionKey(req, user[0][0]);
                                             res.end();
-                                        }else if(user[0][0].lockyn == 'Y') {
+                                        }else if(user[0][0].lockyn == 1) {
                                                 console.log(user[0][0].lockyn);
                                                 console.log('계정 잠김 상태');
                                                 res.json({ success: false, message: "lock" });
@@ -131,7 +131,7 @@ var checkLogin = function(req, res) {
                                 }else{
                                     console.log('계정존재, 계정일치하지만 , 비밀번호 틀림');
                                     
-                                    if(count <= 4 && (lockyn== null || lockyn== 'N' )){  //비밀번호만 틀리고 계정이 잠기지 않은 상태
+                                    if(count <= 4 && lockyn== 0 ){  //비밀번호만 틀리고 계정이 잠기지 않은 상태
                                         console.log('비밀번호만 틀리고 계정이 잠기지 않은 상태');
                                         res.json({ success: false, message: "WRONG PASSWD" , cnt: count+1});
                                         res.end();
@@ -152,7 +152,7 @@ var checkLogin = function(req, res) {
                                             //     } else {
                                             //         console.dir("lock.... OK ");
                                             //     }
-                                            // });
+                                            // });9
                                         }else{
                                             //fail count  업데이트 
                                             var stmt = mapper.getStatement('userInfo', 'countPlus', options, {language:'sql', indent: '  '});

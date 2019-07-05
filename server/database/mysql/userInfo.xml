@@ -20,7 +20,7 @@
 </select>
 <update id="failcntzero" >
     <![CDATA[
-    update users set loginfailcount = 0 , lockyn ='N'
+    update users set loginfailcount = 0 , lockyn =1
     where userid =  #{userid}     
     ]]>	
 </update>    

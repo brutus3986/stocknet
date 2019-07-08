@@ -20,7 +20,7 @@
 </select>
 <update id="failcntzero" >
     <![CDATA[
-    update users set loginfailcount = 0 , lockyn =1
+    update users set loginfailcount = 0 , lockyn =0
     where userid =  #{userid}     
     ]]>	
 </update>    
@@ -41,7 +41,7 @@
 </update>    
 <update id="loginfaillock" >
     <![CDATA[
-    update users set loginfailcount = 5 , lockyn ='Y'
+    update users set loginfailcount = 5 , lockyn =1
     where userid =  #{userid}     
     ]]>	
 </update>   

@@ -69,7 +69,7 @@ var checkLogin = function(req, res) {
 
                                     var dbIpaddr = user[0][0].ipaddr.split(',');
                                      if (dbIpaddr.indexOf(ip) !== -1) { //계정일치, 접속 허용IP 일치
-                                        if (user[0][0].starttime <= dt_time && dt_time <= user[0][0].endtime && user[0][0].lockyn != 'Y') {
+                                        if (user[0][0].starttime <= dt_time && dt_time <= user[0][0].endtime && user[0][0].lockyn != 1) {
                                             
                                             countInfo(req,res); 
                                             //usersloginCount(req,res);
@@ -118,7 +118,7 @@ var checkLogin = function(req, res) {
                                                 console.log('계정 잠김 상태');
                                                 res.json({ success: false, message: "lock" });
                                                 res.end();
-                                            }else {
+                                        }else {
                                                 console.log('계정은 일치, IP정보 일치, 접속시간 불일치');
                                                 res.json({ success: false, message: "No Auth TIME" });
                                                 res.end();
